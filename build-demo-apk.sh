@@ -12,8 +12,8 @@ if ! command -v fvm >/dev/null 2>&1; then
   FLUTTER_BIN="flutter"
 fi
 
-REPO_ROOT="$(cd ../.. && pwd)"
-URL_FILE="${REPO_ROOT}/demo-public-url.txt"
+PLATFORM_DIR="$(cd "$(dirname "$0")/../myboss-platform" && pwd)"
+URL_FILE="${MYBOSS_PLATFORM_DIR:-$PLATFORM_DIR}/demo-public-url.txt"
 
 DEFAULT_HOST=$(grep "const demoServerHost" lib/core/config/demo_server_host.dart | sed "s/.*= '\\([^']*\\)'.*/\\1/")
 DEMO_HOST="${1:-$DEFAULT_HOST}"

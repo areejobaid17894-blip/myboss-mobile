@@ -9,8 +9,8 @@ if ! command -v fvm >/dev/null 2>&1; then
   FLUTTER_BIN="flutter"
 fi
 
-REPO_ROOT="$(cd ../.. && pwd)"
-URL_FILE="${REPO_ROOT}/demo-public-url.txt"
+PLATFORM_DIR="$(cd "$(dirname "$0")/../myboss-platform" && pwd)"
+URL_FILE="${MYBOSS_PLATFORM_DIR:-$PLATFORM_DIR}/demo-public-url.txt"
 
 # Physical device on same Wi‑Fi as this Mac (override: API_HOST=10.0.0.5 ./build-local-android.sh)
 API_HOST="${API_HOST:-$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "10.0.2.2")}"
