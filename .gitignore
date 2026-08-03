@@ -1,0 +1,38 @@
+# Dependencies & build
+.dart_tool/
+.packages
+.pub-cache/
+build/
+**/doc/api/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Generated
+lib/gen/
+**/*.g.dart
+**/*.freezed.dart
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+
+# Android / iOS local
+android/local.properties
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+ios/Pods/
+ios/.symlinks/
+.gradle-home/
+
+# IDE & OS
+.idea/
+.vscode/
+.DS_Store
+*.log
+
+# Ephemeral
+demo-public-url.txt

@@ -1,0 +1,194 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:myboss_mobile/core/di/injection.dart';
+import 'package:myboss_mobile/core/error/failures.dart';
+import 'package:myboss_mobile/core/session/session_manager.dart';
+import 'package:myboss_mobile/features/gallery/domain/usecases/gallery_usecases.dart';
+import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
+import 'package:myboss_mobile/features/squad/domain/usecases/resolve_user_squad_usecase.dart';
+import 'package:myboss_mobile/features/squad/domain/usecases/squad_usecases.dart';
+import 'package:myboss_mobile/features/survey/domain/entities/survey.dart';
+import 'package:myboss_mobile/features/survey/domain/usecases/survey_usecases.dart';
+
+class HomeState extends Equatable {
+  const HomeState({
+    this.isLoading = false,
+    this.squad,
+    this.joinStatus,
+    this.progress,
+    this.report,
+    this.surveys = const [],
+    this.unreadNotifications = 0,
+    this.confirmedNoSquad = false,
+    this.squadLoadFailed = false,
+    this.error,
+  });
+
+  final bool isLoading;
+  final Squad? squad;
+  final SquadJoinStatus? joinStatus;
+  final SquadProgress? progress;
+  final SurveyReport? report;
+  final List<DynamicSurvey> surveys;
+  final int unreadNotifications;
+  final bool confirmedNoSquad;
+  final bool squadLoadFailed;
+  final Failure? error;
+
+  bool get hasActiveSquad => squad != null;
+  bool get hasPendingJoinRequest => joinStatus?.hasPendingJoinRequest ?? false;
+  bool get showNoSquadExperience => confirmedNoSquad && !hasActiveSquad;
+
+  HomeState copyWith({
+    bool? isLoading,
+    Squad? squad,
+    SquadJoinStatus? joinStatus,
+    bool clearJoinStatus = false,
+    SquadProgress? progress,
+    SurveyReport? report,
+    List<DynamicSurvey>? surveys,
+    int? unreadNotifications,
+    bool? confirmedNoSquad,
+    bool? squadLoadFailed,
+    Failure? error,
+    bool clearError = false,
+    bool clearSquad = false,
+  }) {
+    return HomeState(
+      isLoading: isLoading ?? this.isLoading,
+      squad: clearSquad ? null : (squad ?? this.squad),
+      joinStatus: clearJoinStatus ? null : (joinStatus ?? this.joinStatus),
+      progress: progress ?? this.progress,
+      report: report ?? this.report,
+      surveys: surveys ?? this.surveys,
+      unreadNotifications: unreadNotifications ?? this.unreadNotifications,
+      confirmedNoSquad: confirmedNoSquad ?? this.confirmedNoSquad,
+      squadLoadFailed: squadLoadFailed ?? this.squadLoadFailed,
+      error: clearError ? null : (error ?? this.error),
+    );
+  }
+
+  @override
+  List<Object?> get props => [isLoading, squad, joinStatus, progress, report, surveys, unreadNotifications, confirmedNoSquad, squadLoadFailed, error];
+}
+
+class HomeCubit extends Cubit<HomeState> {
+  HomeCubit(
+    this._resolveUserSquadUseCase,
+    this._getJoinStatusUseCase,
+    this._getSquadProgressUseCase,
+    this._getSurveyReportUseCase,
+    this._listSurveysUseCase,
+    this._getUnreadNotificationCountUseCase,
+  ) : super(const HomeState());
+
+  final ResolveUserSquadUseCase _resolveUserSquadUseCase;
+  final GetJoinStatusUseCase _getJoinStatusUseCase;
+  final GetSquadProgressUseCase _getSquadProgressUseCase;
+  final GetSurveyReportUseCase _getSurveyReportUseCase;
+  final ListSurveysUseCase _listSurveysUseCase;
+  final GetUnreadNotificationCountUseCase _getUnreadNotificationCountUseCase;
+
+  static const _fallbackSurveys = [
+    DynamicSurvey(
+      id: 'survey-consumer',
+      segment: 'consumer',
+      title: 'Customer Visit Survey',
+      description: 'Capture feedback from consumer customers in the field.',
+      isActive: true,
+      questions: [],
+    ),
+    DynamicSurvey(
+      id: 'survey-business',
+      segment: 'business',
+      title: 'Business Customer Survey',
+      description: 'Structured visit template for business accounts.',
+      isActive: true,
+      questions: [],
+    ),
+    DynamicSurvey(
+      id: 'survey-employee',
+      segment: 'employee',
+      title: 'Employee Feedback Loop',
+      description: 'Share your experience as a squad member.',
+      isActive: true,
+      questions: [],
+    ),
+  ];
+
+  Future<void> load(String userId) async {
+    emit(state.copyWith(isLoading: true, clearError: true));
+
+    final surveysResponse = await _listSurveysUseCase();
+    final surveys = surveysResponse.surveys.isNotEmpty ? surveysResponse.surveys : _fallbackSurveys;
+
+    if (userId.isEmpty) {
+      emit(state.copyWith(isLoading: false, surveys: surveys, clearSquad: true, clearJoinStatus: true));
+      return;
+    }
+
+    final session = getIt<SessionManager>();
+    final user = session.currentUser;
+
+    final squadResponse = await _resolveUserSquadUseCase(userId);
+    final squad = squadResponse.squad;
+
+    Future<int> fetchUnread({Squad? activeSquad}) async {
+      final unreadResponse = await _getUnreadNotificationCountUseCase(
+        userId: userId,
+        onboardingCompleted: user?.onboardingCompleted,
+        openToTravel: user?.openToTravel,
+        isLeader: activeSquad?.isLeader(userId) ?? false,
+      );
+      return unreadResponse.count;
+    }
+
+    if (squad == null && squadResponse.confirmedNoSquad) {
+      getIt<SessionManager>().markConfirmedNoSquad();
+      final statusResponse = await _getJoinStatusUseCase(userId);
+      final unreadCount = await fetchUnread();
+      emit(state.copyWith(
+        isLoading: false,
+        surveys: surveys,
+        clearSquad: true,
+        joinStatus: statusResponse.status,
+        unreadNotifications: unreadCount,
+        confirmedNoSquad: true,
+        squadLoadFailed: false,
+      ));
+      return;
+    }
+
+    if (squad == null) {
+      final unreadCount = await fetchUnread();
+      emit(state.copyWith(
+        isLoading: false,
+        surveys: surveys,
+        error: squadResponse.failure,
+        unreadNotifications: unreadCount,
+        squadLoadFailed: squadResponse.failure != null,
+        confirmedNoSquad: false,
+      ));
+      return;
+    }
+
+    final progressResponse = await _getSquadProgressUseCase(squad.id, target: squad.surveyTarget);
+    final reportResponse = await _getSurveyReportUseCase('governorate', id: squad.governorate);
+    final unreadCount = await fetchUnread(activeSquad: squad);
+
+    getIt<SessionManager>().setSquad(squad);
+
+    emit(state.copyWith(
+      isLoading: false,
+      squad: squad,
+      clearJoinStatus: true,
+      progress: progressResponse.progress,
+      report: reportResponse.report,
+      surveys: surveys,
+      unreadNotifications: unreadCount,
+      confirmedNoSquad: false,
+      squadLoadFailed: false,
+      error: squadResponse.failure,
+    ));
+  }
+}
