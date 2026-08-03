@@ -23,7 +23,8 @@ if [ -f "$URL_FILE" ]; then
   TUNNEL_HOST="${TUNNEL_URL#https://}"
   TUNNEL_HOST="${TUNNEL_HOST#http://}"
   if [ -n "$TUNNEL_HOST" ]; then
-    API_HOSTS="${API_HOSTS},${TUNNEL_HOST}"
+    API_HOSTS="${TUNNEL_HOST},${API_HOSTS}"
+    GATEWAY_ORIGIN="$TUNNEL_URL"
   fi
 fi
 

@@ -125,7 +125,21 @@ Opens: http://127.0.0.1:8090/app/
 
 ---
 
-## Build release APK (physical phone)
+### Step 3 — Build external APK (mobile data / remote testers)
+
+```bash
+cd myboss-mobile
+./build-external-android.sh
+# Output: build/android-dist/myboss-demo-external.apk
+```
+
+Requires `myboss-platform/demo-public-url.txt` from a running Cloudflare tunnel. Share APK by email — **not committed to git**.
+
+See: [`../myboss-platform/docs/deployment/DEMO_TUNNEL_AND_APK.md`](../myboss-platform/docs/deployment/DEMO_TUNNEL_AND_APK.md)
+
+---
+
+## Build release APK (physical phone — same Wi‑Fi)
 
 Phone must reach the demo gateway (`http://<server-ip>:8090`) on same Wi‑Fi, or use a Cloudflare tunnel URL.
 
@@ -224,6 +238,7 @@ lib/
 
 | Script | Purpose |
 |--------|---------|
+| `build-external-android.sh` | **External testers** — tunnel-first, mobile data |
 | `build-demo-web.sh` | Flutter web for `/app/` on gateway |
 | `build-local-android.sh` | Release APK for physical device |
 | `build-demo-apk.sh` | APK with explicit server IP argument |
