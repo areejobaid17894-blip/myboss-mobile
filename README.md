@@ -2,7 +2,7 @@
 
 Flutter employee app — BLoC + Clean Architecture.
 
-Part of the **my boss** multi-repo layout — see [`../README.md`](../README.md) and sibling `myboss-platform` for full-stack deploy.
+Part of the **my boss** multi-repo layout — see [`myboss-platform/docs/MULTI_REPO_SETUP.md`](../myboss-platform/docs/MULTI_REPO_SETUP.md) for full-stack deploy.
 
 ---
 
@@ -36,9 +36,10 @@ fvm use 3.35.7
 | `ios/Pods/` | No | `cd ios && pod install` |
 | `lib/gen/` (generated l10n) | No | `fvm flutter gen-l10n` |
 | `**/*.g.dart`, `*.freezed.dart` | No | `dart run build_runner build` (if using code gen) |
-| `demo-public-url.txt` | No | `../myboss-platform/scripts/start-demo-tunnel.sh` |
+| `.env` | No | Optional — `cp .env.example .env` if using env-based config |
+| `demo-public-url.txt` | No | `../myboss-platform/scripts/start-demo-tunnel.sh` (external APK builds) |
 
-**Safe in git:** `demo_credentials.dart` (demo test emails only, no secrets)
+**In git:** `demo_credentials.dart` (demo test emails only, no secrets), `.env.example`
 
 ---
 
