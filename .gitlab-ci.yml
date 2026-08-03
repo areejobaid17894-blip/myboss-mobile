@@ -1,0 +1,16 @@
+stages:
+  - test
+
+variables:
+  FLUTTER_VERSION: "3.35.7"
+
+# Requires GitLab runner with Flutter or use cirrus/ci-flutter image
+test:
+  stage: test
+  image: ghcr.io/cirruslabs/flutter:3.35.7
+  script:
+    - flutter pub get
+    - flutter gen-l10n
+    - flutter analyze
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
