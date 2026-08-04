@@ -4,7 +4,7 @@ Flutter employee app — BLoC, clean architecture, Arabic/English l10n.
 
 Connects to the backend through the demo gateway (`:8090`) or direct service ports during development. Demo mode auto-fills OTP so you can walk through flows quickly.
 
-Full stack setup: [`myboss-platform/docs/MULTI_REPO_SETUP.md`](../myboss-platform/docs/MULTI_REPO_SETUP.md)
+Full stack setup: [Multi-repo setup guide](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/MULTI_REPO_SETUP.md) (**myboss-platform** repo)
 
 ---
 
@@ -113,7 +113,7 @@ For people outside your Wi‑Fi — bakes in the Cloudflare tunnel URL:
 
 Needs `myboss-platform/demo-public-url.txt` from `./scripts/start-demo-tunnel.sh`.
 
-→ [`../myboss-platform/docs/deployment/DEMO_TUNNEL_AND_APK.md`](../myboss-platform/docs/deployment/DEMO_TUNNEL_AND_APK.md)
+→ [Tunnel + external APK guide](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/deployment/DEMO_TUNNEL_AND_APK.md)
 
 ### Same Wi‑Fi (physical phone)
 
@@ -188,8 +188,9 @@ lib/
 
 ## Further reading
 
-| Topic | Path |
+| Topic | Link |
 |-------|------|
-| Android Studio guide | [`../myboss-platform/docs/mobile/ANDROID_STUDIO.md`](../myboss-platform/docs/mobile/ANDROID_STUDIO.md) |
-| Employee journey | [`../myboss-platform/docs/EMPLOYEE_JOURNEY_COVERAGE.md`](../myboss-platform/docs/EMPLOYEE_JOURNEY_COVERAGE.md) |
-| Chat API | [`../myboss-platform/docs/api/CHAT_API.md`](../myboss-platform/docs/api/CHAT_API.md) |
+| Android Studio guide | [ANDROID_STUDIO.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/mobile/ANDROID_STUDIO.md) |
+| Employee journey | [EMPLOYEE_JOURNEY_COVERAGE.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/EMPLOYEE_JOURNEY_COVERAGE.md) |
+| Chat API | [CHAT_API.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/api/CHAT_API.md) |
+| Full stack setup | [MULTI_REPO_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/MULTI_REPO_SETUP.md) |
