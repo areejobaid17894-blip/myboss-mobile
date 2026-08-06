@@ -42,7 +42,8 @@ $FLUTTER_BIN gen-l10n
 $FLUTTER_BIN build apk --release \
   --dart-define=API_HOSTS="$API_HOSTS" \
   --dart-define=GATEWAY_ORIGIN="$GATEWAY_ORIGIN" \
-  --dart-define=DEMO_MODE=true
+  --dart-define=DEMO_MODE=true \
+  --dart-define=PUSH_ENABLED=true
 
 APK="build/app/outputs/flutter-apk/app-release.apk"
 if [ -f "$APK" ]; then

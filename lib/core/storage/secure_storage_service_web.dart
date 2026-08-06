@@ -6,6 +6,7 @@ class SecureStorageService {
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _localeKey = 'app_locale';
+  static const _fcmTokenKey = 'fcm_device_token';
 
   Future<void> saveAccessToken(String token) async {
     html.window.localStorage[_accessTokenKey] = token;
@@ -26,6 +27,16 @@ class SecureStorageService {
   }
 
   Future<String?> getLocale() async => html.window.localStorage[_localeKey];
+
+  Future<void> saveFcmToken(String token) async {
+    html.window.localStorage[_fcmTokenKey] = token;
+  }
+
+  Future<String?> getFcmToken() async => html.window.localStorage[_fcmTokenKey];
+
+  Future<void> clearFcmToken() async {
+    html.window.localStorage.remove(_fcmTokenKey);
+  }
 
   Future<void> clearTokens() async {
     html.window.localStorage.remove(_accessTokenKey);

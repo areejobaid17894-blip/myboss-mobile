@@ -16,11 +16,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signInSubtitle =>
-      'Use the address your invitation was sent to. We\'ll email you a 6-digit code — no password needed.';
+      'Enter your Orange work email. We\'ll send you a 6-digit code — no password needed.';
 
   @override
   String get signInFooterHelp =>
-      'Didn\'t get an invitation? Contact the initiative team.';
+      'Need help signing in? Contact the initiative team.';
 
   @override
   String get demoAccountLabel => 'Demo account';
@@ -121,7 +121,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navGallery => 'Gallery';
 
   @override
+  String get navNotifications => 'Notifications';
+
+  @override
   String get navProfile => 'Profile';
+
+  @override
+  String get notificationsEmptyTitle => 'No notifications yet';
+
+  @override
+  String get notificationsEmptyBody =>
+      'Admin announcements and squad alerts will appear here.';
+
+  @override
+  String get notificationsEnableTitle => 'Enable notifications';
+
+  @override
+  String get notificationsEnableBody =>
+      'Turn on notifications to get live alerts when the initiative team sends updates — even when the app is in the background.';
+
+  @override
+  String get notificationsEnableAction => 'Enable';
+
+  @override
+  String get notificationsEnableLater => 'Not now';
 
   @override
   String homeWelcome(String name) {

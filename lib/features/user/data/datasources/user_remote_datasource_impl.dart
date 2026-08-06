@@ -53,4 +53,26 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     final response = await _client.user.put('/users/$id/terms', data: {'accepted': true});
     return response.data as Map<String, dynamic>;
   }
+
+  @override
+  Future<void> registerDeviceToken({
+    required String userId,
+    required String token,
+    required String platform,
+  }) async {
+    await _client.user.post('/users/$userId/device-token', data: {
+      'token': token,
+      'platform': platform,
+    });
+  }
+
+  @override
+  Future<void> revokeDeviceTokens({
+    required String userId,
+    String? token,
+  }) async {
+    await _client.user.delete('/users/$userId/device-token', data: {
+      if (token != null) 'token': token,
+    });
+  }
 }

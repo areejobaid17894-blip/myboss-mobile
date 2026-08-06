@@ -61,3 +61,22 @@ class MarkNotificationReadUseCase {
     return _repository.markNotificationRead(notificationId: notificationId, userId: userId);
   }
 }
+
+class GetNotificationsForUserUseCase {
+  const GetNotificationsForUserUseCase(this._repository);
+  final GalleryRepository _repository;
+
+  Future<({Failure? failure, List<AppNotification> items})> call({
+    required String userId,
+    bool? onboardingCompleted,
+    bool? openToTravel,
+    bool? isLeader,
+  }) {
+    return _repository.getNotificationsForUser(
+      userId: userId,
+      onboardingCompleted: onboardingCompleted,
+      openToTravel: openToTravel,
+      isLeader: isLeader,
+    );
+  }
+}

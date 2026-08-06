@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myboss_mobile/core/di/injection.dart';
 import 'package:myboss_mobile/core/error/failures.dart';
+import 'package:myboss_mobile/core/notifications/notification_unread_tracker.dart';
 import 'package:myboss_mobile/core/session/session_manager.dart';
 import 'package:myboss_mobile/features/gallery/domain/usecases/gallery_usecases.dart';
 import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
@@ -79,7 +80,8 @@ class HomeCubit extends Cubit<HomeState> {
     this._getSquadProgressUseCase,
     this._getSurveyReportUseCase,
     this._listSurveysUseCase,
-    this._getUnreadNotificationCountUseCase,
+    this._getNotificationsForUserUseCase,
+    this._unreadTracker,
   ) : super(const HomeState());
 
   final ResolveUserSquadUseCase _resolveUserSquadUseCase;
@@ -87,7 +89,8 @@ class HomeCubit extends Cubit<HomeState> {
   final GetSquadProgressUseCase _getSquadProgressUseCase;
   final GetSurveyReportUseCase _getSurveyReportUseCase;
   final ListSurveysUseCase _listSurveysUseCase;
-  final GetUnreadNotificationCountUseCase _getUnreadNotificationCountUseCase;
+  final GetNotificationsForUserUseCase _getNotificationsForUserUseCase;
+  final NotificationUnreadTracker _unreadTracker;
 
   static const _fallbackSurveys = [
     DynamicSurvey(
@@ -134,13 +137,16 @@ class HomeCubit extends Cubit<HomeState> {
     final squad = squadResponse.squad;
 
     Future<int> fetchUnread({Squad? activeSquad}) async {
-      final unreadResponse = await _getUnreadNotificationCountUseCase(
+      final listResponse = await _getNotificationsForUserUseCase(
         userId: userId,
         onboardingCompleted: user?.onboardingCompleted,
         openToTravel: user?.openToTravel,
         isLeader: activeSquad?.isLeader(userId) ?? false,
       );
-      return unreadResponse.count;
+      if (listResponse.failure != null) return _unreadTracker.count;
+      final count = listResponse.items.where((item) => !item.isRead).length;
+      _unreadTracker.update(count);
+      return count;
     }
 
     if (squad == null && squadResponse.confirmedNoSquad) {

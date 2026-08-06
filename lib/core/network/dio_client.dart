@@ -8,7 +8,7 @@ import 'package:myboss_mobile/core/storage/secure_storage_service.dart';
 
 class DioClient {
   DioClient(this._envConfig, this._secureStorage) {
-    _authDio = _createDio(_envConfig.authBaseUrl, attachAuth: false);
+    _authDio = _createDio(_envConfig.authBaseUrl, attachAuth: true);
     _userDio = _createDio(_envConfig.userBaseUrl);
     _configDio = _createDio(_envConfig.configBaseUrl);
     _squadDio = _createDio(_envConfig.squadBaseUrl);
@@ -22,6 +22,8 @@ class DioClient {
   late final Dio _configDio;
   late final Dio _squadDio;
   late final Dio _surveyDio;
+
+  Future<bool>? _refreshInFlight;
 
   Dio get auth => _authDio;
   Dio get user => _userDio;
@@ -53,15 +55,38 @@ class DioClient {
         handler.next(options);
       },
       onError: (error, handler) async {
-        if (attachAuth) {
-          final statusCode = error.response?.statusCode;
-          final data = error.response?.data;
-          final code = extractDioCode(data);
-          final orangeCode = data is Map<String, dynamic> && data['code'] is int ? data['code'] as int : null;
-          if (shouldEndSessionForUnauthorized(statusCode: statusCode, errorCode: code) ||
-              shouldEndSessionForOrangeCode(orangeCode)) {
-            await endUserSession();
+        if (!attachAuth) {
+          handler.next(error);
+          return;
+        }
+
+        final statusCode = error.response?.statusCode;
+        final isRefreshCall = error.requestOptions.path.contains('/auth/refresh');
+
+        if (statusCode == 401 && !isRefreshCall) {
+          final refreshed = await _tryRefreshAccessToken();
+          if (refreshed) {
+            try {
+              final token = await _secureStorage.getAccessToken();
+              error.requestOptions.headers['Authorization'] = 'Bearer $token';
+              final response = await dio.fetch(error.requestOptions);
+              handler.resolve(response);
+              return;
+            } catch (retryError) {
+              if (retryError is DioException) {
+                handler.next(retryError);
+                return;
+              }
+            }
           }
+        }
+
+        final data = error.response?.data;
+        final code = extractDioCode(data);
+        final orangeCode = data is Map<String, dynamic> && data['code'] is int ? data['code'] as int : null;
+        if (shouldEndSessionForUnauthorized(statusCode: statusCode, errorCode: code) ||
+            shouldEndSessionForOrangeCode(orangeCode)) {
+          await endUserSession();
         }
         handler.next(error);
       },
@@ -72,6 +97,43 @@ class DioClient {
     }
 
     return dio;
+  }
+
+  Future<bool> _tryRefreshAccessToken() async {
+    if (_refreshInFlight != null) {
+      await _refreshInFlight;
+      final token = await _secureStorage.getAccessToken();
+      return token != null && token.isNotEmpty;
+    }
+
+    _refreshInFlight = _refreshAccessToken();
+    try {
+      return await _refreshInFlight!;
+    } finally {
+      _refreshInFlight = null;
+    }
+  }
+
+  Future<bool> _refreshAccessToken() async {
+    final refreshToken = await _secureStorage.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) return false;
+
+    try {
+      final response = await _authDio.post('/auth/refresh', data: {'refreshToken': refreshToken});
+      final data = response.data as Map<String, dynamic>;
+      final accessToken = data['accessToken'] as String?;
+      final newRefresh = data['refreshToken'] as String?;
+      if (accessToken == null || accessToken.isEmpty) return false;
+
+      await _secureStorage.saveAccessToken(accessToken);
+      if (newRefresh != null && newRefresh.isNotEmpty) {
+        await _secureStorage.saveRefreshToken(newRefresh);
+      }
+      setAuthToken(accessToken);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> restoreAuthTokenFromStorage() async {

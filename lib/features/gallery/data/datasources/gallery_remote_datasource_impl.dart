@@ -55,4 +55,30 @@ class GalleryRemoteDataSourceImpl implements GalleryRemoteDataSource {
   Future<void> markNotificationRead({required String notificationId, required String userId}) async {
     await _client.survey.post('/notifications/$notificationId/read', data: {'userId': userId});
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getNotificationsForUser({
+    required String userId,
+    bool? onboardingCompleted,
+    bool? openToTravel,
+    bool? isLeader,
+  }) async {
+    final response = await _client.survey.get('/notifications/for-user', queryParameters: {
+      'userId': userId,
+      if (onboardingCompleted != null) 'onboardingCompleted': onboardingCompleted,
+      if (openToTravel != null) 'openToTravel': openToTravel,
+      if (isLeader != null) 'isLeader': isLeader,
+    });
+    final data = response.data;
+    if (data is List) {
+      return data.cast<Map<String, dynamic>>();
+    }
+    return [];
+  }
+
+  @override
+  Future<Map<String, dynamic>> getNotificationById(String id) async {
+    final response = await _client.survey.get('/notifications/$id');
+    return response.data as Map<String, dynamic>;
+  }
 }

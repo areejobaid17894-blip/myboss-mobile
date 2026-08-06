@@ -10,6 +10,7 @@ import 'package:myboss_mobile/features/auth/presentation/pages/otp_verification_
 import 'package:myboss_mobile/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:myboss_mobile/features/gallery/presentation/pages/gallery_page.dart';
 import 'package:myboss_mobile/features/home/presentation/pages/home_page.dart';
+import 'package:myboss_mobile/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:myboss_mobile/features/onboarding/presentation/pages/terms_acceptance_page.dart';
 import 'package:myboss_mobile/features/onboarding/presentation/pages/building_mobility_page.dart';
 import 'package:myboss_mobile/features/onboarding/presentation/pages/vest_size_page.dart';
@@ -126,7 +127,7 @@ final _appRoutes = <RouteBase>[
       builder: (context, state) => const LiveChatPage(),
     ),
 
-    // Authenticated shell with bottom navigation (Home, Reports, Gallery, My Squad, Profile)
+    // Authenticated shell with bottom navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) => MainShell(navigationShell: navigationShell),
       branches: [
@@ -134,6 +135,11 @@ final _appRoutes = <RouteBase>[
           navigatorKey: _shellNavigatorKey,
           routes: [
             GoRoute(path: '/home', builder: (context, state) => const HomePage()),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(path: '/notifications', builder: (context, state) => const NotificationsPage()),
           ],
         ),
         StatefulShellBranch(

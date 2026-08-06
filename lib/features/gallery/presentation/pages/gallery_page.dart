@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:myboss_mobile/core/di/injection.dart';
+import 'package:myboss_mobile/core/notifications/notification_route.dart';
 import 'package:myboss_mobile/core/session/session_manager.dart';
 import 'package:myboss_mobile/core/error/failure_message_mapper.dart';
 import 'package:myboss_mobile/core/localization/app_localizations.dart';
@@ -486,8 +488,12 @@ class _GalleryAnnouncementCardState extends State<_GalleryAnnouncementCard> {
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
+    final targetRoute = resolveNotificationRoute(item.route);
 
-    return Container(
+    return InkWell(
+      onTap: targetRoute == '/gallery' ? null : () => context.go(targetRoute),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.orange, Color(0xFFFF8A50)],
@@ -545,6 +551,7 @@ class _GalleryAnnouncementCardState extends State<_GalleryAnnouncementCard> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

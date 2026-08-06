@@ -49,7 +49,8 @@ $FLUTTER_BIN gen-l10n
 $FLUTTER_BIN build apk --release \
   --dart-define=API_HOSTS="$API_HOSTS" \
   --dart-define=GATEWAY_ORIGIN="$TUNNEL_URL" \
-  --dart-define=DEMO_MODE=true
+  --dart-define=DEMO_MODE=true \
+  --dart-define=PUSH_ENABLED=true
 
 OUT_DIR="build/android-dist"
 mkdir -p "$OUT_DIR"
@@ -67,4 +68,9 @@ echo "Share by email / Drive / WhatsApp."
 echo "Keep Mac awake + cloudflared running."
 echo "If tunnel URL changes, rebuild this APK."
 echo "Login: demo@orange.com + OTP"
+echo ""
+echo "Firebase SHA-1 (debug keystore — add in Firebase Console if FCM token fails):"
+/Applications/Android\ Studio.app/Contents/jbr/Contents/Home/bin/keytool -list -v \
+  -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey \
+  -storepass android -keypass android 2>/dev/null | rg "SHA1:" || true
 echo "=========================================="

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:myboss_mobile/core/notifications/push_log.dart';
 import 'package:myboss_mobile/core/error/failures.dart';
 import 'package:myboss_mobile/core/network/dio_error_mapper.dart';
 import 'package:myboss_mobile/features/user/data/datasources/user_remote_datasource.dart';
@@ -79,6 +80,41 @@ class UserRepositoryImpl implements UserRepository {
       return (failure: mapDioError(e), profile: null);
     } catch (_) {
       return (failure: const ServerFailure(), profile: null);
+    }
+  }
+
+  @override
+  Future<bool> registerDeviceToken({
+    required String userId,
+    required String token,
+    required String platform,
+  }) async {
+    try {
+      await _remoteDataSource.registerDeviceToken(
+        userId: userId,
+        token: token,
+        platform: platform,
+      );
+      return true;
+    } on DioException catch (e) {
+      final body = e.response?.data;
+      pushLog('registerDeviceToken HTTP ${e.response?.statusCode}: $body');
+      return false;
+    } catch (error) {
+      pushLog('registerDeviceToken error: $error');
+      return false;
+    }
+  }
+
+  @override
+  Future<void> revokeDeviceTokens({
+    required String userId,
+    String? token,
+  }) async {
+    try {
+      await _remoteDataSource.revokeDeviceTokens(userId: userId, token: token);
+    } catch (_) {
+      // Best-effort on logout.
     }
   }
 }

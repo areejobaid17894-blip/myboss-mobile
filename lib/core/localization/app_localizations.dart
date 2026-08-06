@@ -113,13 +113,13 @@ abstract class AppLocalizations {
   /// No description provided for @signInSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Use the address your invitation was sent to. We\'ll email you a 6-digit code — no password needed.'**
+  /// **'Enter your Orange work email. We\'ll send you a 6-digit code — no password needed.'**
   String get signInSubtitle;
 
   /// No description provided for @signInFooterHelp.
   ///
   /// In en, this message translates to:
-  /// **'Didn\'t get an invitation? Contact the initiative team.'**
+  /// **'Need help signing in? Contact the initiative team.'**
   String get signInFooterHelp;
 
   /// No description provided for @demoAccountLabel.
@@ -302,11 +302,53 @@ abstract class AppLocalizations {
   /// **'Gallery'**
   String get navGallery;
 
+  /// No description provided for @navNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get navNotifications;
+
   /// No description provided for @navProfile.
   ///
   /// In en, this message translates to:
   /// **'Profile'**
   String get navProfile;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin announcements and squad alerts will appear here.'**
+  String get notificationsEmptyBody;
+
+  /// No description provided for @notificationsEnableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications'**
+  String get notificationsEnableTitle;
+
+  /// No description provided for @notificationsEnableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications to get live alerts when the initiative team sends updates — even when the app is in the background.'**
+  String get notificationsEnableBody;
+
+  /// No description provided for @notificationsEnableAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get notificationsEnableAction;
+
+  /// No description provided for @notificationsEnableLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notificationsEnableLater;
 
   /// No description provided for @homeWelcome.
   ///

@@ -4,6 +4,9 @@ import 'package:myboss_mobile/core/config/demo_api_resolver.dart';
 import 'package:myboss_mobile/core/config/env_config.dart';
 import 'package:myboss_mobile/core/network/dio_client.dart';
 import 'package:myboss_mobile/core/localization/locale_cubit.dart';
+import 'package:myboss_mobile/core/notifications/notification_unread_tracker.dart';
+import 'package:myboss_mobile/core/notifications/push_registration_service.dart';
+import 'package:myboss_mobile/core/notifications/push_service.dart';
 import 'package:myboss_mobile/core/session/session_manager.dart';
 import 'package:myboss_mobile/core/storage/secure_storage_service.dart';
 import 'package:myboss_mobile/features/auth/data/datasources/auth_remote_datasource.dart';
@@ -29,6 +32,7 @@ import 'package:myboss_mobile/features/gallery/domain/repositories/gallery_repos
 import 'package:myboss_mobile/features/gallery/domain/usecases/gallery_usecases.dart';
 import 'package:myboss_mobile/features/gallery/presentation/cubit/gallery_cubit.dart';
 import 'package:myboss_mobile/features/home/presentation/cubit/home_cubit.dart';
+import 'package:myboss_mobile/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:myboss_mobile/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:myboss_mobile/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:myboss_mobile/features/squad/data/datasources/squad_remote_datasource.dart';
@@ -73,10 +77,16 @@ Future<void> configureDependencies() async {
   // Core
   getIt.registerLazySingleton<SecureStorageService>(() => SecureStorageService());
   getIt.registerLazySingleton<DioClient>(() => DioClient(getIt<EnvConfig>(), getIt<SecureStorageService>()));
-  await getIt<DioClient>().restoreAuthTokenFromStorage();
+  await getIt<DioClient>().restoreAuthTokenFromStorage().timeout(
+    const Duration(seconds: 5),
+    onTimeout: () {},
+  );
   getIt.registerLazySingleton<SessionManager>(() => SessionManager());
   getIt.registerLazySingleton<LocaleCubit>(() => LocaleCubit(getIt<SecureStorageService>()));
-  await getIt<LocaleCubit>().loadSavedLocale();
+  await getIt<LocaleCubit>().loadSavedLocale().timeout(
+    const Duration(seconds: 5),
+    onTimeout: () {},
+  );
 
   // Auth — Data
   getIt.registerLazySingleton<AuthRemoteDataSource>(
@@ -109,6 +119,13 @@ Future<void> configureDependencies() async {
   // User — Data
   getIt.registerLazySingleton<UserRemoteDataSource>(() => UserRemoteDataSourceImpl(getIt<DioClient>()));
   getIt.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(getIt<UserRemoteDataSource>()));
+  getIt.registerLazySingleton<NotificationUnreadTracker>(() => NotificationUnreadTracker());
+  getIt.registerLazySingleton<PushRegistrationService>(
+    () => PushRegistrationService(getIt<UserRepository>(), getIt<SecureStorageService>()),
+  );
+  getIt.registerLazySingleton<PushService>(
+    () => PushService(getIt<PushRegistrationService>()),
+  );
 
   // User — Domain
   getIt.registerLazySingleton(() => GetUserUseCase(getIt<UserRepository>()));
@@ -183,7 +200,15 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => GetGalleryUseCase(getIt<GalleryRepository>()));
   getIt.registerLazySingleton(() => UploadGalleryItemUseCase(getIt<GalleryRepository>()));
   getIt.registerLazySingleton(() => GetUnreadNotificationCountUseCase(getIt<GalleryRepository>()));
+  getIt.registerLazySingleton(() => GetNotificationsForUserUseCase(getIt<GalleryRepository>()));
   getIt.registerLazySingleton(() => MarkNotificationReadUseCase(getIt<GalleryRepository>()));
+  getIt.registerFactory(
+    () => NotificationsCubit(
+      getIt<GetNotificationsForUserUseCase>(),
+      getIt<MarkNotificationReadUseCase>(),
+      getIt<NotificationUnreadTracker>(),
+    ),
+  );
   getIt.registerFactory(
     () => GalleryCubit(
       getIt<GetGalleryUseCase>(),
@@ -203,7 +228,8 @@ Future<void> configureDependencies() async {
       getIt<GetSquadProgressUseCase>(),
       getIt<GetSurveyReportUseCase>(),
       getIt<ListSurveysUseCase>(),
-      getIt<GetUnreadNotificationCountUseCase>(),
+      getIt<GetNotificationsForUserUseCase>(),
+      getIt<NotificationUnreadTracker>(),
     ),
   );
 

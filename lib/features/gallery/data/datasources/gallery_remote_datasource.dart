@@ -18,4 +18,13 @@ abstract class GalleryRemoteDataSource {
   });
 
   Future<void> markNotificationRead({required String notificationId, required String userId});
+
+  Future<List<Map<String, dynamic>>> getNotificationsForUser({
+    required String userId,
+    bool? onboardingCompleted,
+    bool? openToTravel,
+    bool? isLeader,
+  });
+
+  Future<Map<String, dynamic>> getNotificationById(String id);
 }

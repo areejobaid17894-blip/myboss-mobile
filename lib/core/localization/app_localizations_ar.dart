@@ -16,10 +16,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get signInSubtitle =>
-      'استخدم البريد الذي أُرسلت إليه الدعوة. سنرسل لك رمزاً من 6 أرقام — بدون كلمة مرور.';
+      'أدخل بريدك الإلكتروني في Orange. سنرسل لك رمزاً من 6 أرقام — بدون كلمة مرور.';
 
   @override
-  String get signInFooterHelp => 'لم تصلك دعوة؟ تواصل مع فريق المبادرة.';
+  String get signInFooterHelp =>
+      'تحتاج مساعدة في تسجيل الدخول؟ تواصل مع فريق المبادرة.';
 
   @override
   String get demoAccountLabel => 'حساب تجريبي';
@@ -120,7 +121,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navGallery => 'المعرض';
 
   @override
+  String get navNotifications => 'الإشعارات';
+
+  @override
   String get navProfile => 'الملف الشخصي';
+
+  @override
+  String get notificationsEmptyTitle => 'لا توجد إشعارات بعد';
+
+  @override
+  String get notificationsEmptyBody =>
+      'ستظهر هنا إعلانات الإدارة وتنبيهات الفريق.';
+
+  @override
+  String get notificationsEnableTitle => 'فعّل الإشعارات';
+
+  @override
+  String get notificationsEnableBody =>
+      'فعّل الإشعارات لتصلك التحديثات المباشرة من فريق المبادرة — حتى عندما يكون التطبيق في الخلفية.';
+
+  @override
+  String get notificationsEnableAction => 'تفعيل';
+
+  @override
+  String get notificationsEnableLater => 'ليس الآن';
 
   @override
   String homeWelcome(String name) {

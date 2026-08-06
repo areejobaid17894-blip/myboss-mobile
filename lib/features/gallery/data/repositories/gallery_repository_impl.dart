@@ -81,4 +81,28 @@ class GalleryRepositoryImpl implements GalleryRepository {
       return const ServerFailure();
     }
   }
+
+  @override
+  Future<({Failure? failure, List<AppNotification> items})> getNotificationsForUser({
+    required String userId,
+    bool? onboardingCompleted,
+    bool? openToTravel,
+    bool? isLeader,
+  }) async {
+    try {
+      final rows = await _remoteDataSource.getNotificationsForUser(
+        userId: userId,
+        onboardingCompleted: onboardingCompleted,
+        openToTravel: openToTravel,
+        isLeader: isLeader,
+      );
+      final items = rows.map(AppNotification.fromJson).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return (failure: null, items: items);
+    } on DioException catch (e) {
+      return (failure: mapDioError(e), items: <AppNotification>[]);
+    } catch (_) {
+      return (failure: const ServerFailure(), items: <AppNotification>[]);
+    }
+  }
 }

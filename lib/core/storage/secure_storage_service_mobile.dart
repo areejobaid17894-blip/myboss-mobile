@@ -4,6 +4,7 @@ class SecureStorageService {
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _localeKey = 'app_locale';
+  static const _fcmTokenKey = 'fcm_device_token';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -24,6 +25,13 @@ class SecureStorageService {
       _storage.write(key: _localeKey, value: languageCode);
 
   Future<String?> getLocale() => _storage.read(key: _localeKey);
+
+  Future<void> saveFcmToken(String token) =>
+      _storage.write(key: _fcmTokenKey, value: token);
+
+  Future<String?> getFcmToken() => _storage.read(key: _fcmTokenKey);
+
+  Future<void> clearFcmToken() => _storage.delete(key: _fcmTokenKey);
 
   Future<void> clearTokens() async {
     await _storage.delete(key: _accessTokenKey);

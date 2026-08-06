@@ -1,5 +1,6 @@
 import 'package:myboss_mobile/core/di/injection.dart';
 import 'package:myboss_mobile/core/network/dio_client.dart';
+import 'package:myboss_mobile/core/notifications/push_registration_service.dart';
 import 'package:myboss_mobile/core/router/app_router.dart';
 import 'package:myboss_mobile/core/session/session_manager.dart';
 import 'package:myboss_mobile/features/auth/domain/repositories/auth_repository.dart';
@@ -11,6 +12,12 @@ Future<void> endUserSession() async {
   if (_endingSession) return;
   _endingSession = true;
   try {
+    final userId = getIt<SessionManager>().currentUser?.id;
+    if (userId != null) {
+      try {
+        await revokePushTokens(userId);
+      } catch (_) {}
+    }
     try {
       await getIt<AuthRepository>().signOut();
     } catch (_) {

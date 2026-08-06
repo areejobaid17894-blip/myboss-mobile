@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:myboss_mobile/core/error/failures.dart';
 import 'package:myboss_mobile/core/network/dio_error_mapper.dart';
 import 'package:myboss_mobile/core/network/dio_client.dart';
+import 'package:myboss_mobile/core/notifications/push_registration_service.dart';
+import 'package:myboss_mobile/core/notifications/push_service.dart';
 import 'package:myboss_mobile/core/storage/secure_storage_service.dart';
 import 'package:myboss_mobile/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:myboss_mobile/features/auth/domain/entities/user.dart';
@@ -95,6 +99,11 @@ class AuthRepositoryImpl implements AuthRepository {
     _dioClient.setAuthToken(tokens.accessToken);
 
     final userData = data['user'] as Map<String, dynamic>;
+    final userId = userData['id'] as String;
+    if (PushService.pushEnabled) {
+      unawaited(registerPushTokenWhenReady(userId));
+    }
+
     return (
       failure: null,
       result: AuthResult.authenticated(

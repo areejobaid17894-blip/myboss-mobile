@@ -408,14 +408,38 @@ class BossBottomNav extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    padding: selected ? const EdgeInsets.symmetric(horizontal: 14, vertical: 3) : EdgeInsets.zero,
-                    decoration: BoxDecoration(
-                      color: selected ? AppColors.orange : Colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(item.icon, size: 19, color: selected ? AppColors.white : const Color(0xFFA5A5A5)),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        padding: selected ? const EdgeInsets.symmetric(horizontal: 14, vertical: 3) : EdgeInsets.zero,
+                        decoration: BoxDecoration(
+                          color: selected ? AppColors.orange : Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(item.icon, size: 19, color: selected ? AppColors.white : const Color(0xFFA5A5A5)),
+                      ),
+                      if (item.badgeCount > 0)
+                        Positioned(
+                          right: selected ? 2 : -4,
+                          top: -4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                            decoration: BoxDecoration(
+                              color: AppColors.orange,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.white, width: 1.5),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              item.badgeCount > 9 ? '9+' : '${item.badgeCount}',
+                              style: const TextStyle(color: AppColors.white, fontSize: 8, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -437,10 +461,11 @@ class BossBottomNav extends StatelessWidget {
 }
 
 class BossNavItem {
-  const BossNavItem({required this.icon, required this.label});
+  const BossNavItem({required this.icon, required this.label, this.badgeCount = 0});
 
   final IconData icon;
   final String label;
+  final int badgeCount;
 }
 
 class BossSegBar extends StatelessWidget {

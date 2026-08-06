@@ -44,6 +44,12 @@ dependencies:
   image_picker: ^1.1.2
   webview_flutter: ^4.13.0
 
+  # TODO(orange-firebase): Enable after adding Orange Firebase config files + flutterfire configure.
+  # Push notifications (enable with --dart-define=PUSH_ENABLED=true)
+  firebase_core: ^3.8.1
+  firebase_messaging: ^15.1.6
+  flutter_local_notifications: ^18.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -58,6 +64,8 @@ dev_dependencies:
   # Testing
   bloc_test: ^10.0.0
   mocktail: ^1.0.4
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

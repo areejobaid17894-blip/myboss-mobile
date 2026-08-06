@@ -21,4 +21,11 @@ abstract class GalleryRepository {
   });
 
   Future<Failure?> markNotificationRead({required String notificationId, required String userId});
+
+  Future<({Failure? failure, List<AppNotification> items})> getNotificationsForUser({
+    required String userId,
+    bool? onboardingCompleted,
+    bool? openToTravel,
+    bool? isLeader,
+  });
 }

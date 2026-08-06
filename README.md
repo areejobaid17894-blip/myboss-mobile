@@ -128,7 +128,28 @@ API_HOST=10.0.2.2 ./build-local-android.sh  # Android emulator
 
 Output: `build/android-dist/myboss-demo-<host>.apk`
 
+All APK scripts enable Firebase push (`PUSH_ENABLED=true`). Requires backend FCM configured — see [Push Firebase setup](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/PUSH_FIREBASE_SETUP.md).
+
 Install: `adb install -r build/android-dist/myboss-demo-*.apk` or sideload on the device.
+
+---
+
+## Push notifications
+
+| Step | Action |
+|------|--------|
+| 1 | Ensure `myboss-platform/secrets/fcm-service-account.json` exists |
+| 2 | Set `FCM_ENABLED=true` in `myboss-platform/.env` and redeploy Docker |
+| 3 | Build APK with `./build-external-android.sh` or `./build-local-android.sh` |
+| 4 | Install on a **physical Android device**, login, allow notifications |
+| 5 | Admin sends notification → device receives push + in-app entry |
+
+Firebase Android config: `android/app/google-services.json` + `lib/firebase_options.dart`  
+Project: `my-boss-app-38576`
+
+iOS push is not configured yet (needs `GoogleService-Info.plist` + APNs key).
+
+Setup: [`ios/Runner/IOS_PUSH_SETUP.md`](ios/Runner/IOS_PUSH_SETUP.md) · Run `./scripts/setup-ios-firebase.sh` after downloading plist from Firebase.
 
 ---
 
@@ -177,11 +198,12 @@ lib/
 
 | Script | Purpose |
 |--------|---------|
-| `build-external-android.sh` | External testers — tunnel URL, mobile data |
+| `build-external-android.sh` | External testers — tunnel URL, mobile data, push enabled |
 | `build-demo-web.sh` | Flutter web for `/app/` on gateway |
-| `build-local-android.sh` | Release APK for physical device |
-| `build-demo-apk.sh` | APK with explicit server IP |
+| `build-local-android.sh` | Release APK for physical device, push enabled |
+| `build-demo-apk.sh` | APK with explicit server IP, push enabled |
 | `run-local-web.sh` | Hot-reload web dev on :8092 |
+| `build-ios-demo.sh` | iOS simulator/device with push enabled |
 | `run-android-emulator.sh` | Emulator launch helper |
 
 ---
@@ -193,4 +215,5 @@ lib/
 | Android Studio guide | [ANDROID_STUDIO.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/mobile/ANDROID_STUDIO.md) |
 | Employee journey | [EMPLOYEE_JOURNEY_COVERAGE.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/EMPLOYEE_JOURNEY_COVERAGE.md) |
 | Chat API | [CHAT_API.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/api/CHAT_API.md) |
+| Push Firebase setup | [PUSH_FIREBASE_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/PUSH_FIREBASE_SETUP.md) |
 | Full stack setup | [MULTI_REPO_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/MULTI_REPO_SETUP.md) |

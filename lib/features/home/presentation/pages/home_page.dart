@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myboss_mobile/core/di/injection.dart';
+import 'package:myboss_mobile/core/notifications/notification_unread_tracker.dart';
 import 'package:myboss_mobile/core/session/session_manager.dart';
 import 'package:myboss_mobile/core/localization/app_localizations.dart';
 import 'package:myboss_mobile/core/localization/locale_cubit.dart';
@@ -55,13 +56,22 @@ class _HomeView extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(user?.email ?? '', style: const TextStyle(color: AppColors.grey600)),
                 const SizedBox(height: 24),
-                if (state.unreadNotifications > 0) ...[
-                  _NotificationBanner(
-                    count: state.unreadNotifications,
-                    onTap: () => context.go('/gallery'),
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                ListenableBuilder(
+                  listenable: getIt<NotificationUnreadTracker>(),
+                  builder: (context, _) {
+                    final unreadCount = getIt<NotificationUnreadTracker>().count;
+                    if (unreadCount <= 0) return const SizedBox.shrink();
+                    return Column(
+                      children: [
+                        _NotificationBanner(
+                          count: unreadCount,
+                          onTap: () => context.go('/notifications'),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    );
+                  },
+                ),
                 if (state.isLoading)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 24),

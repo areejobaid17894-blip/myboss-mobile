@@ -21,4 +21,15 @@ abstract class UserRepository {
     String? vestSize,
     bool? openToTravel,
   });
+
+  Future<bool> registerDeviceToken({
+    required String userId,
+    required String token,
+    required String platform,
+  });
+
+  Future<void> revokeDeviceTokens({
+    required String userId,
+    String? token,
+  });
 }

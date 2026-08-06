@@ -18,4 +18,15 @@ abstract class UserRemoteDataSource {
   });
 
   Future<Map<String, dynamic>> acceptTerms({required String id});
+
+  Future<void> registerDeviceToken({
+    required String userId,
+    required String token,
+    required String platform,
+  });
+
+  Future<void> revokeDeviceTokens({
+    required String userId,
+    String? token,
+  });
 }
