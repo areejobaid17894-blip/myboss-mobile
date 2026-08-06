@@ -16,15 +16,6 @@ final class SignInRequested extends AuthEvent {
   List<Object> get props => [email];
 }
 
-final class SignUpRequested extends AuthEvent {
-  const SignUpRequested({required this.email});
-
-  final String email;
-
-  @override
-  List<Object> get props => [email];
-}
-
 final class VerifyTwoFactorRequested extends AuthEvent {
   const VerifyTwoFactorRequested({required this.sessionId, required this.code});
 

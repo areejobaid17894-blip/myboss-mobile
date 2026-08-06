@@ -14,7 +14,6 @@ import 'package:myboss_mobile/features/auth/data/datasources/auth_remote_datasou
 import 'package:myboss_mobile/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:myboss_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:myboss_mobile/features/auth/domain/usecases/sign_in_usecase.dart';
-import 'package:myboss_mobile/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:myboss_mobile/features/auth/domain/usecases/verify_two_factor_usecase.dart';
 import 'package:myboss_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:myboss_mobile/features/chat/data/datasources/chat_remote_datasource.dart';
@@ -102,7 +101,6 @@ Future<void> configureDependencies() async {
 
   // Auth — Domain
   getIt.registerLazySingleton(() => SignInUseCase(getIt<AuthRepository>()));
-  getIt.registerLazySingleton(() => SignUpUseCase(getIt<AuthRepository>()));
   getIt.registerLazySingleton(() => VerifyTwoFactorUseCase(getIt<AuthRepository>()));
   getIt.registerLazySingleton(() => ResendOtpUseCase(getIt<AuthRepository>()));
 
@@ -110,7 +108,6 @@ Future<void> configureDependencies() async {
   getIt.registerFactory(
     () => AuthBloc(
       signInUseCase: getIt<SignInUseCase>(),
-      signUpUseCase: getIt<SignUpUseCase>(),
       verifyTwoFactorUseCase: getIt<VerifyTwoFactorUseCase>(),
       resendOtpUseCase: getIt<ResendOtpUseCase>(),
     ),

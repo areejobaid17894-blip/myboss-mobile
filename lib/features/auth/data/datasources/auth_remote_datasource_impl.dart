@@ -13,12 +13,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> signUp({required String email}) async {
-    final response = await _client.auth.post('/auth/sign-up', data: {'email': email});
-    return response.data as Map<String, dynamic>;
-  }
-
-  @override
   Future<Map<String, dynamic>> verifyTwoFactor({
     required String sessionId,
     required String code,

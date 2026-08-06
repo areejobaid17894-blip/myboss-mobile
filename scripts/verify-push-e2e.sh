@@ -30,7 +30,7 @@ for r in real:
 echo ""
 echo "Real FCM tokens from app: $real_tokens"
 if [ "$real_tokens" = "0" ]; then
-  echo "FAIL: No real device token registered. Install latest APK, login, allow notifications, tap Profile → Register push."
+  echo "FAIL: No real device token registered. Install latest APK, login, and allow notifications."
   exit 1
 fi
 

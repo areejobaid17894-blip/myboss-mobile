@@ -69,6 +69,10 @@ echo "Keep Mac awake + cloudflared running."
 echo "If tunnel URL changes, rebuild this APK."
 echo "Login: demo@orange.com + OTP"
 echo ""
+echo "IMPORTANT: Uninstall old apps first if you see 'Welcome back' / 'Create account':"
+echo "  - The Boss App (com.orange.mcmb.*)"
+echo "  - Install ONLY: my boss app (com.myboss.myboss_mobile)"
+echo ""
 echo "Firebase SHA-1 (debug keystore — add in Firebase Console if FCM token fails):"
 /Applications/Android\ Studio.app/Contents/jbr/Contents/Home/bin/keytool -list -v \
   -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey \

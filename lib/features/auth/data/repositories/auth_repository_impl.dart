@@ -31,18 +31,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<({Failure? failure, AuthResult? result})> signUp({required String email}) async {
-    try {
-      final data = await _remoteDataSource.signUp(email: email.trim().toLowerCase());
-      return _mapResponse(data);
-    } on DioException catch (e) {
-      return (failure: mapDioError(e), result: null);
-    } catch (_) {
-      return (failure: const ServerFailure(code: 'INTERNAL_ERROR'), result: null);
-    }
-  }
-
-  @override
   Future<({Failure? failure, AuthResult? result})> verifyTwoFactor({
     required String sessionId,
     required String code,
