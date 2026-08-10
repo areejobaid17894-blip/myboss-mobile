@@ -45,6 +45,8 @@ ALLOW_DEPLOY=1 ./scripts/deploy-mobile-web.sh
 
 Gateway: http://127.0.0.1:8090/app/
 
+**Backend data:** Microservices share one MariaDB database (`myboss`) when `DB_ENABLED=true`. Default demo uses in-memory stores — see [DATABASE.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/database/DATABASE.md).
+
 **2. Launch the app**
 
 ```bash
@@ -212,6 +214,7 @@ lib/
 
 | Topic | Link |
 |-------|------|
+| Database schema | [DATABASE.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/database/DATABASE.md) |
 | Android Studio guide | [ANDROID_STUDIO.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/mobile/ANDROID_STUDIO.md) |
 | Employee journey | [EMPLOYEE_JOURNEY_COVERAGE.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/EMPLOYEE_JOURNEY_COVERAGE.md) |
 | Chat API | [CHAT_API.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/api/CHAT_API.md) |
