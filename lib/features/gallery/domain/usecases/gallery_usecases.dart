@@ -34,25 +34,6 @@ class UploadGalleryItemUseCase {
   }
 }
 
-class GetUnreadNotificationCountUseCase {
-  const GetUnreadNotificationCountUseCase(this._repository);
-  final GalleryRepository _repository;
-
-  Future<({Failure? failure, int count})> call({
-    required String userId,
-    bool? onboardingCompleted,
-    bool? openToTravel,
-    bool? isLeader,
-  }) {
-    return _repository.getUnreadNotificationCount(
-      userId: userId,
-      onboardingCompleted: onboardingCompleted,
-      openToTravel: openToTravel,
-      isLeader: isLeader,
-    );
-  }
-}
-
 class MarkNotificationReadUseCase {
   const MarkNotificationReadUseCase(this._repository);
   final GalleryRepository _repository;
@@ -78,5 +59,17 @@ class GetNotificationsForUserUseCase {
       openToTravel: openToTravel,
       isLeader: isLeader,
     );
+  }
+}
+
+class GetNotificationByIdUseCase {
+  const GetNotificationByIdUseCase(this._repository);
+  final GalleryRepository _repository;
+
+  Future<({Failure? failure, AppNotification? item})> call({
+    required String id,
+    required String userId,
+  }) {
+    return _repository.getNotificationById(id: id, userId: userId);
   }
 }

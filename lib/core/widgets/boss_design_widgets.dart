@@ -319,31 +319,6 @@ class BossProgressBar extends StatelessWidget {
   }
 }
 
-class BossTag extends StatelessWidget {
-  const BossTag({super.key, required this.label, this.variant = BossTagVariant.orange});
-
-  final String label;
-  final BossTagVariant variant;
-
-  @override
-  Widget build(BuildContext context) {
-    final (bg, fg) = switch (variant) {
-      BossTagVariant.orange => (AppColors.orange, AppColors.white),
-      BossTagVariant.green => (AppColors.successBg, AppColors.successDark),
-      BossTagVariant.gray => (const Color(0xFFEAEAEA), AppColors.grey600),
-      BossTagVariant.yellow => (AppColors.yellow, AppColors.ink),
-      BossTagVariant.blue => (const Color(0xFFE1F2FB), const Color(0xFF1D87BF)),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
-      child: Text(label, style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: fg)),
-    );
-  }
-}
-
-enum BossTagVariant { orange, green, gray, yellow, blue }
-
 class BossToggle extends StatelessWidget {
   const BossToggle({super.key, required this.value, required this.onChanged});
 
@@ -466,53 +441,4 @@ class BossNavItem {
   final IconData icon;
   final String label;
   final int badgeCount;
-}
-
-class BossSegBar extends StatelessWidget {
-  const BossSegBar({
-    super.key,
-    required this.options,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final List<String> options;
-  final String selected;
-  final ValueChanged<String> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: const Color(0xFFE6E6E6), borderRadius: BorderRadius.circular(12)),
-      child: Row(
-        children: options.map((option) {
-          final isOn = option == selected;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => onSelected(option),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: isOn ? AppColors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(9),
-                  boxShadow: isOn ? const [BoxShadow(color: Color(0x14000000), blurRadius: 4, offset: Offset(0, 1))] : null,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  option,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
-                    color: isOn ? AppColors.ink : AppColors.grey600,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
 }

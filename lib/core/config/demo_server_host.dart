@@ -1,2 +1,2 @@
 /// Current demo server IP — used by build scripts (APK bakes this via --dart-define=API_HOST).
-const demoServerHost = '192.168.1.13';
+const demoServerHost = '192.168.1.19';

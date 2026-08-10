@@ -326,6 +326,30 @@ abstract class AppLocalizations {
   /// **'Admin announcements and squad alerts will appear here.'**
   String get notificationsEmptyBody;
 
+  /// No description provided for @notificationsUnreadSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} unread'**
+  String notificationsUnreadSummary(int count);
+
+  /// No description provided for @notificationDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification'**
+  String get notificationDetailTitle;
+
+  /// No description provided for @notificationNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This notification is no longer available.'**
+  String get notificationNotFound;
+
+  /// No description provided for @notificationUnreadBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get notificationUnreadBadge;
+
   /// No description provided for @notificationsEnableTitle.
   ///
   /// In en, this message translates to:

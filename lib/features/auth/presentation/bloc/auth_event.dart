@@ -34,11 +34,3 @@ final class ResendOtpRequested extends AuthEvent {
   @override
   List<Object> get props => [sessionId];
 }
-
-final class SignOutRequested extends AuthEvent {
-  const SignOutRequested();
-}
-
-final class AuthErrorCleared extends AuthEvent {
-  const AuthErrorCleared();
-}

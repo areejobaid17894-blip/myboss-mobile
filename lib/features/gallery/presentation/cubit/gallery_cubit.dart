@@ -1,6 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:myboss_mobile/core/di/injection.dart';
 import 'package:myboss_mobile/core/error/failures.dart';
+import 'package:myboss_mobile/core/notifications/notification_unread_tracker.dart';
+import 'package:myboss_mobile/core/session/session_manager.dart';
 import 'package:myboss_mobile/features/gallery/domain/entities/gallery_item.dart';
 import 'package:myboss_mobile/features/gallery/domain/usecases/gallery_usecases.dart';
 
@@ -86,5 +89,19 @@ class GalleryCubit extends Cubit<GalleryState> {
   Future<void> markAnnouncementRead(String notificationId, String userId) async {
     if (notificationId.isEmpty) return;
     await _markReadUseCase(notificationId: notificationId, userId: userId);
+
+    final session = getIt<SessionManager>();
+    final user = session.currentUser;
+    if (user == null) return;
+    final squad = session.currentSquad;
+    final listResponse = await getIt<GetNotificationsForUserUseCase>()(
+      userId: userId,
+      onboardingCompleted: user.onboardingCompleted,
+      openToTravel: user.openToTravel,
+      isLeader: squad?.isLeader(userId) ?? false,
+    );
+    if (listResponse.failure == null) {
+      getIt<NotificationUnreadTracker>().updateFromItems(listResponse.items);
+    }
   }
 }

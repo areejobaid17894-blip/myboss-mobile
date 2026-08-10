@@ -92,9 +92,7 @@ class _MainShellState extends State<MainShell> with WidgetsBindingObserver {
       index,
       initialLocation: index == widget.navigationShell.currentIndex,
     );
-    if (index != 1) {
-      _refreshUnreadCount();
-    }
+    _refreshUnreadCount();
   }
 
   @override

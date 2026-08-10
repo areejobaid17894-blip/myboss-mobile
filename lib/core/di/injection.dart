@@ -77,7 +77,7 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<SecureStorageService>(() => SecureStorageService());
   getIt.registerLazySingleton<DioClient>(() => DioClient(getIt<EnvConfig>(), getIt<SecureStorageService>()));
   await getIt<DioClient>().restoreAuthTokenFromStorage().timeout(
-    const Duration(seconds: 5),
+    const Duration(seconds: 15),
     onTimeout: () {},
   );
   getIt.registerLazySingleton<SessionManager>(() => SessionManager());
@@ -196,8 +196,8 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<GalleryRepository>(() => GalleryRepositoryImpl(getIt<GalleryRemoteDataSource>()));
   getIt.registerLazySingleton(() => GetGalleryUseCase(getIt<GalleryRepository>()));
   getIt.registerLazySingleton(() => UploadGalleryItemUseCase(getIt<GalleryRepository>()));
-  getIt.registerLazySingleton(() => GetUnreadNotificationCountUseCase(getIt<GalleryRepository>()));
   getIt.registerLazySingleton(() => GetNotificationsForUserUseCase(getIt<GalleryRepository>()));
+  getIt.registerLazySingleton(() => GetNotificationByIdUseCase(getIt<GalleryRepository>()));
   getIt.registerLazySingleton(() => MarkNotificationReadUseCase(getIt<GalleryRepository>()));
   getIt.registerFactory(
     () => NotificationsCubit(

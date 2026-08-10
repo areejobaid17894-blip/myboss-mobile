@@ -38,74 +38,76 @@ class PushService {
     enableVibration: true,
   );
 
-  bool _initialized = false;
+  bool _coreReady = false;
   bool _listenersAttached = false;
-  Future<void>? _initFuture;
+  Future<void>? _coreInitFuture;
 
   Future<void> init() async {
     if (kIsWeb || !pushEnabled) return;
-    _initFuture ??= _initWithTimeout();
+    await _ensureCoreReady();
+  }
+
+  Future<void> _ensureCoreReady() async {
+    if (_coreReady) return;
+    _coreInitFuture ??= _initCore();
     try {
-      await _initFuture;
+      await _coreInitFuture;
+      _coreReady = true;
     } catch (error) {
+      _coreInitFuture = null;
       pushLog('init failed: $error');
+      rethrow;
     }
   }
 
-  Future<void> _initWithTimeout() async {
-    await Future<void>(() async {
-      await _ensureFirebase();
+  Future<void> _initCore() async {
+    await _ensureFirebase();
 
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-      await _local
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(_channel);
+    await _local
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(_channel);
 
-      await _local.initialize(
-        const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-          iOS: DarwinInitializationSettings(
-            requestAlertPermission: false,
-            requestBadgePermission: false,
-            requestSoundPermission: false,
-          ),
+    await _local.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
         ),
-        onDidReceiveNotificationResponse: (response) {
-          _routeFromPayload(response.payload);
-        },
-      );
+      ),
+      onDidReceiveNotificationResponse: (response) {
+        _routeFromPayload(response.payload);
+      },
+    );
 
-      if (!_listenersAttached) {
-        _fcm.onTokenRefresh.listen((token) async {
-          pushLog('FCM token refreshed (${token.substring(0, 16)}...)');
-          await _pushRegistration.storeDeviceToken(token);
-          final userId = getIt<SessionManager>().currentUser?.id;
-          if (userId != null) await _pushRegistration.registerIfAvailable(userId);
-        });
+    if (!_listenersAttached) {
+      _fcm.onTokenRefresh.listen((token) async {
+        pushLog('FCM token refreshed (${token.substring(0, 16)}...)');
+        await _pushRegistration.storeDeviceToken(token);
+        final userId = getIt<SessionManager>().currentUser?.id;
+        if (userId != null) await _pushRegistration.registerIfAvailable(userId);
+      });
 
-        FirebaseMessaging.onMessage.listen(_showForeground);
-        FirebaseMessaging.onMessageOpenedApp.listen((message) => _routeFromData(message.data));
+      FirebaseMessaging.onMessage.listen(_showForeground);
+      FirebaseMessaging.onMessageOpenedApp.listen((message) => _routeFromData(message.data));
 
-        _listenersAttached = true;
+      _listenersAttached = true;
+    }
+
+    if (Platform.isIOS) {
+      for (var i = 0; i < 5; i++) {
+        if (await _fcm.getAPNSToken() != null) break;
+        await Future.delayed(const Duration(seconds: 1));
       }
+    }
 
-      if (Platform.isIOS) {
-        for (var i = 0; i < 5; i++) {
-          if (await _fcm.getAPNSToken() != null) break;
-          await Future.delayed(const Duration(seconds: 1));
-        }
-      }
-
-      await acquireAndStoreToken();
-
-      final initial = await _fcm.getInitialMessage();
-      if (initial != null) {
-        _routeFromData(initial.data);
-      }
-
-      _initialized = true;
-    }).timeout(const Duration(seconds: 60));
+    final initial = await _fcm.getInitialMessage();
+    if (initial != null) {
+      _routeFromData(initial.data);
+    }
   }
 
   Future<void> _ensureFirebase() async {
@@ -128,20 +130,16 @@ class PushService {
     if (kIsWeb || !pushEnabled) return null;
 
     try {
-      if (!_initialized && _initFuture == null) {
-        await init();
-      } else if (!_initialized && _initFuture != null) {
-        await _initFuture;
-      }
+      await _ensureCoreReady();
 
-      final token = await _fcm.getToken().timeout(const Duration(seconds: 30));
+      final token = await _fcm.getToken().timeout(const Duration(seconds: 45));
       if (token != null && token.isNotEmpty) {
         await _pushRegistration.storeDeviceToken(token);
         pushLog('FCM token acquired: $token');
         return token;
       }
 
-      pushLog('FCM getToken returned empty — check Google Play Services and Firebase SHA-1');
+      pushLog('FCM getToken returned empty — allow notifications and check Google Play Services');
       return null;
     } catch (error) {
       pushLog('getToken failed: $error');
@@ -151,12 +149,7 @@ class PushService {
 
   Future<void> refreshRegistration() async {
     if (kIsWeb || !pushEnabled) return;
-
     try {
-      if (!_initialized) {
-        await init();
-        return;
-      }
       await acquireAndStoreToken();
     } catch (error) {
       pushLog('refreshRegistration failed: $error');

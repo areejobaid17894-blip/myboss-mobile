@@ -1,5 +1,4 @@
-// Generated from Firebase project my-boss-app-38576 (Android).
-// iOS credentials are placeholders until GoogleService-Info.plist is added.
+// Generated from Firebase project my-boss-app-38576 (Android + iOS).
 //
 // Build with push: --dart-define=PUSH_ENABLED=true
 
@@ -29,10 +28,10 @@ class DefaultFirebaseOptions {
     storageBucket: 'my-boss-app-38576.firebasestorage.app',
   );
 
-  // iOS push requires GoogleService-Info.plist + APNs key in Firebase Console.
+  // iOS — synced from ios/Runner/GoogleService-Info.plist
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'REPLACE_ME_IOS_FIREBASE',
-    appId: '1:142867649793:ios:0000000000000000000000',
+    apiKey: 'AIzaSyBW_f-DTDlixrj_pBfUa4fuvr0XQpr3eoE',
+    appId: '1:142867649793:ios:8acdec20b145cc497cf700',
     messagingSenderId: '142867649793',
     projectId: 'my-boss-app-38576',
     storageBucket: 'my-boss-app-38576.firebasestorage.app',

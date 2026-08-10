@@ -49,28 +49,6 @@ class GalleryRepositoryImpl implements GalleryRepository {
   }
 
   @override
-  Future<({Failure? failure, int count})> getUnreadNotificationCount({
-    required String userId,
-    bool? onboardingCompleted,
-    bool? openToTravel,
-    bool? isLeader,
-  }) async {
-    try {
-      final count = await _remoteDataSource.getUnreadNotificationCount(
-        userId: userId,
-        onboardingCompleted: onboardingCompleted,
-        openToTravel: openToTravel,
-        isLeader: isLeader,
-      );
-      return (failure: null, count: count);
-    } on DioException catch (e) {
-      return (failure: mapDioError(e), count: 0);
-    } catch (_) {
-      return (failure: const ServerFailure(), count: 0);
-    }
-  }
-
-  @override
   Future<Failure?> markNotificationRead({required String notificationId, required String userId}) async {
     try {
       await _remoteDataSource.markNotificationRead(notificationId: notificationId, userId: userId);
@@ -103,6 +81,21 @@ class GalleryRepositoryImpl implements GalleryRepository {
       return (failure: mapDioError(e), items: <AppNotification>[]);
     } catch (_) {
       return (failure: const ServerFailure(), items: <AppNotification>[]);
+    }
+  }
+
+  @override
+  Future<({Failure? failure, AppNotification? item})> getNotificationById({
+    required String id,
+    required String userId,
+  }) async {
+    try {
+      final data = await _remoteDataSource.getNotificationById(id: id, userId: userId);
+      return (failure: null, item: AppNotification.fromJson(data));
+    } on DioException catch (e) {
+      return (failure: mapDioError(e), item: null);
+    } catch (_) {
+      return (failure: const ServerFailure(), item: null);
     }
   }
 }

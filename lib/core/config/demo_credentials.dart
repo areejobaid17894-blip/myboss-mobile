@@ -40,13 +40,6 @@ const demoTestAccounts = [
   ),
 ];
 
-@Deprecated('Use demoTestAccounts')
-const otherTestAccountEmails = [
-  'nisreen.a@orange.com',
-  'omar.t@orange.com',
-  'laila.m@orange.com',
-];
-
 /// Pre-filled employee email in debug / demo builds.
 String get demoEmployeeEmail => (kDebugMode || _isDemoMode) ? demoAccountEmail : '';
 

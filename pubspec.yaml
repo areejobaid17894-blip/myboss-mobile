@@ -21,14 +21,9 @@ dependencies:
 
   # Dependency Injection
   get_it: ^8.0.3
-  injectable: ^2.5.0
 
   # Networking
   dio: ^5.8.0
-
-  # Code Generation (runtime)
-  freezed_annotation: ^3.0.0
-  json_annotation: ^4.9.0
 
   # Storage
   flutter_secure_storage: ^9.2.4
@@ -42,7 +37,6 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.8
   image_picker: ^1.1.2
-  webview_flutter: ^4.13.0
 
   # TODO(orange-firebase): Enable after adding Orange Firebase config files + flutterfire configure.
   # Push notifications (enable with --dart-define=PUSH_ENABLED=true)
@@ -54,12 +48,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-
-  # Code Generation
-  build_runner: ^2.4.15
-  freezed: ^3.0.0
-  json_serializable: ^6.9.5
-  injectable_generator: ^2.7.0
 
   # Testing
   bloc_test: ^10.0.0

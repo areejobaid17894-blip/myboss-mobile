@@ -5,6 +5,7 @@ import 'dart:html' as html;
 class SecureStorageService {
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
+  static const _userIdKey = 'user_id';
   static const _localeKey = 'app_locale';
   static const _fcmTokenKey = 'fcm_device_token';
 
@@ -15,6 +16,12 @@ class SecureStorageService {
   Future<void> saveRefreshToken(String token) async {
     html.window.localStorage[_refreshTokenKey] = token;
   }
+
+  Future<void> saveUserId(String userId) async {
+    html.window.localStorage[_userIdKey] = userId;
+  }
+
+  Future<String?> getUserId() async => html.window.localStorage[_userIdKey];
 
   Future<String?> getAccessToken() async =>
       html.window.localStorage[_accessTokenKey];
@@ -41,5 +48,6 @@ class SecureStorageService {
   Future<void> clearTokens() async {
     html.window.localStorage.remove(_accessTokenKey);
     html.window.localStorage.remove(_refreshTokenKey);
+    html.window.localStorage.remove(_userIdKey);
   }
 }

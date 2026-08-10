@@ -134,6 +134,20 @@ class AppLocalizationsAr extends AppLocalizations {
       'ستظهر هنا إعلانات الإدارة وتنبيهات الفريق.';
 
   @override
+  String notificationsUnreadSummary(int count) {
+    return '$count غير مقروء';
+  }
+
+  @override
+  String get notificationDetailTitle => 'الإشعار';
+
+  @override
+  String get notificationNotFound => 'هذا الإشعار لم يعد متاحاً.';
+
+  @override
+  String get notificationUnreadBadge => 'غير مقروء';
+
+  @override
   String get notificationsEnableTitle => 'فعّل الإشعارات';
 
   @override

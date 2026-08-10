@@ -5,16 +5,13 @@ import 'package:myboss_mobile/core/session/session_manager.dart';
 import 'package:myboss_mobile/core/localization/app_localizations.dart';
 import 'package:myboss_mobile/core/localization/locale_cubit.dart';
 import 'package:myboss_mobile/core/theme/app_colors.dart';
-import 'package:myboss_mobile/core/widgets/boss_back_button.dart';
 import 'package:myboss_mobile/features/squad/domain/squad_access.dart';
 import 'package:myboss_mobile/features/squad/domain/usecases/squad_usecases.dart';
 import 'package:myboss_mobile/features/squad/presentation/widgets/squad_required_panel.dart';
 import 'package:myboss_mobile/features/survey/presentation/cubit/reports_cubit.dart';
 
 class ReportsPage extends StatefulWidget {
-  const ReportsPage({super.key, this.embedded = false});
-
-  final bool embedded;
+  const ReportsPage({super.key});
 
   @override
   State<ReportsPage> createState() => _ReportsPageState();
@@ -66,19 +63,14 @@ class _ReportsPageState extends State<ReportsPage> {
 
     if (_checkingAccess) {
       return Scaffold(
-        appBar: widget.embedded ? AppBar(title: Text(l10n.reportsTitle), centerTitle: false) : null,
+        appBar: AppBar(title: Text(l10n.reportsTitle), centerTitle: false),
         body: const Center(child: CircularProgressIndicator(color: AppColors.orange)),
       );
     }
 
     if (!_hasSquadAccess) {
       return Scaffold(
-        appBar: widget.embedded
-            ? AppBar(title: Text(l10n.reportsTitle), centerTitle: false)
-            : BossFlowAppBar(
-                title: Text(l10n.reportsTitle),
-                fallbackRoute: '/home',
-              ),
+        appBar: AppBar(title: Text(l10n.reportsTitle), centerTitle: false),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: SquadRequiredPanel(
@@ -91,14 +83,12 @@ class _ReportsPageState extends State<ReportsPage> {
       );
     }
 
-    return _ReportsContent(embedded: widget.embedded);
+    return const _ReportsContent();
   }
 }
 
 class _ReportsContent extends StatelessWidget {
-  const _ReportsContent({required this.embedded});
-
-  final bool embedded;
+  const _ReportsContent();
 
   @override
   Widget build(BuildContext context) {
@@ -117,12 +107,7 @@ class _ReportsContent extends StatelessWidget {
         return cubit;
       },
       child: Scaffold(
-        appBar: embedded
-            ? AppBar(title: Text(l10n.reportsTitle), centerTitle: false)
-            : BossFlowAppBar(
-                title: Text(l10n.reportsTitle),
-                fallbackRoute: '/home',
-              ),
+        appBar: AppBar(title: Text(l10n.reportsTitle), centerTitle: false),
         body: BlocBuilder<ReportsCubit, ReportsState>(
           builder: (context, state) {
             void retry() {

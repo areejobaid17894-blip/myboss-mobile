@@ -93,22 +93,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     if (userId.isEmpty || notificationId.isEmpty) return;
 
     await _markReadUseCase(notificationId: notificationId, userId: userId);
-    final updated = state.items
-        .map((n) => n.id == notificationId ? AppNotification(
-              id: n.id,
-              title: n.title,
-              body: n.body,
-              audience: n.audience,
-              galleryItemId: n.galleryItemId,
-              createdAt: n.createdAt,
-              isRead: true,
-              v: n.v,
-              type: n.type,
-              entityId: n.entityId,
-              route: n.route,
-              sentAt: n.sentAt,
-            ) : n)
-        .toList();
+    final updated = state.items.map((n) => n.id == notificationId ? n.copyWith(isRead: true) : n).toList();
     final unread = updated.where((n) => !n.isRead).length;
     _unreadTracker.update(unread);
     if (!isClosed) emit(state.copyWith(items: updated, unreadCount: unread));

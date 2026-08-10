@@ -20,8 +20,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignInRequested>(_onSignIn);
     on<VerifyTwoFactorRequested>(_onVerifyTwoFactor);
     on<ResendOtpRequested>(_onResendOtp);
-    on<SignOutRequested>(_onSignOut);
-    on<AuthErrorCleared>(_onErrorCleared);
   }
 
   final SignInUseCase _signInUseCase;
@@ -79,11 +77,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     ));
   }
 
-  Future<void> _onSignOut(SignOutRequested event, Emitter<AuthState> emit) async {
-    emit(const AuthInitial());
-  }
-
-  void _onErrorCleared(AuthErrorCleared event, Emitter<AuthState> emit) {
-    emit(const AuthInitial());
-  }
 }

@@ -5,9 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:myboss_mobile/core/di/injection.dart';
 import 'package:myboss_mobile/core/localization/app_localizations.dart';
 import 'package:myboss_mobile/core/localization/locale_cubit.dart';
-import 'package:myboss_mobile/core/notifications/notification_route.dart';
 import 'package:myboss_mobile/core/theme/app_colors.dart';
 import 'package:myboss_mobile/core/widgets/boss_design_widgets.dart';
+import 'package:myboss_mobile/core/widgets/remote_image_url.dart';
 import 'package:myboss_mobile/features/gallery/domain/entities/gallery_item.dart';
 import 'package:myboss_mobile/features/notifications/presentation/cubit/notifications_cubit.dart';
 
@@ -35,15 +35,12 @@ class _NotificationsView extends StatelessWidget {
     }
   }
 
-  Future<void> _openNotification(BuildContext context, AppNotification item) async {
-    final cubit = context.read<NotificationsCubit>();
-    if (!item.isRead) {
-      await cubit.markRead(item.id);
-    }
-    final route = item.route;
-    if (route != null && route.isNotEmpty && route != '/notifications') {
-      if (context.mounted) context.go(resolveNotificationRoute(route));
-    }
+  void _openNotification(BuildContext context, AppNotification item) {
+    context.push('/notifications/${item.id}', extra: item).then((_) {
+      if (context.mounted) {
+        context.read<NotificationsCubit>().load();
+      }
+    });
   }
 
   @override
@@ -52,7 +49,24 @@ class _NotificationsView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.navNotifications),
+        title: BlocBuilder<NotificationsCubit, NotificationsState>(
+          builder: (context, state) {
+            if (state.unreadCount > 0) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l10n.navNotifications),
+                  Text(
+                    l10n.notificationsUnreadSummary(state.unreadCount),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.grey600),
+                  ),
+                ],
+              );
+            }
+            return Text(l10n.navNotifications);
+          },
+        ),
         actions: const [LanguageToggleButton()],
       ),
       body: BlocBuilder<NotificationsCubit, NotificationsState>(
@@ -138,20 +152,30 @@ class _NotificationCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: item.isRead ? AppColors.grey100 : AppColors.orange.withValues(alpha: 0.12),
+          if (item.hasImage)
+            ClipRRect(
               borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: RemoteImageUrl(url: item.imageUrl!),
+              ),
+            )
+          else
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: item.isRead ? AppColors.grey100 : AppColors.orange.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.campaign_rounded,
+                color: item.isRead ? AppColors.grey600 : AppColors.orange,
+                size: 24,
+              ),
             ),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.campaign_rounded,
-              color: item.isRead ? AppColors.grey600 : AppColors.orange,
-              size: 22,
-            ),
-          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -162,6 +186,8 @@ class _NotificationCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: item.isRead ? FontWeight.w600 : FontWeight.w800,
@@ -173,6 +199,7 @@ class _NotificationCard extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
+                        margin: const EdgeInsets.only(left: 8),
                         decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
                       ),
                   ],
@@ -180,6 +207,8 @@ class _NotificationCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   item.body,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: AppColors.grey600, height: 1.4),
                 ),
                 const SizedBox(height: 8),
@@ -187,6 +216,8 @@ class _NotificationCard extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.grey400),
         ],
       ),
     );

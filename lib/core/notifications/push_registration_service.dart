@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:myboss_mobile/core/di/injection.dart';
 import 'package:myboss_mobile/core/config/env_config.dart';
+import 'package:myboss_mobile/core/notifications/notification_permission.dart';
 import 'package:myboss_mobile/core/notifications/push_log.dart';
 import 'package:myboss_mobile/core/notifications/push_registration_state.dart';
 import 'package:myboss_mobile/core/notifications/push_service.dart';
@@ -73,6 +74,10 @@ class PushRegistrationService {
 
     pushLog('Starting registration for user $userId');
     await initPushNotifications();
+
+    if (Platform.isAndroid && !await NotificationPermission.isGranted()) {
+      await NotificationPermission.request();
+    }
 
     final deadline = DateTime.now().add(timeout);
     while (DateTime.now().isBefore(deadline)) {

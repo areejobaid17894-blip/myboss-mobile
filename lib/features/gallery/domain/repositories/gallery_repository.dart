@@ -13,13 +13,6 @@ abstract class GalleryRepository {
     String? caption,
   });
 
-  Future<({Failure? failure, int count})> getUnreadNotificationCount({
-    required String userId,
-    bool? onboardingCompleted,
-    bool? openToTravel,
-    bool? isLeader,
-  });
-
   Future<Failure?> markNotificationRead({required String notificationId, required String userId});
 
   Future<({Failure? failure, List<AppNotification> items})> getNotificationsForUser({
@@ -27,5 +20,10 @@ abstract class GalleryRepository {
     bool? onboardingCompleted,
     bool? openToTravel,
     bool? isLeader,
+  });
+
+  Future<({Failure? failure, AppNotification? item})> getNotificationById({
+    required String id,
+    required String userId,
   });
 }

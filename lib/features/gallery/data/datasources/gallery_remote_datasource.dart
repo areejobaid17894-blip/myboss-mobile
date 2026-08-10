@@ -10,13 +10,6 @@ abstract class GalleryRemoteDataSource {
     String? caption,
   });
 
-  Future<int> getUnreadNotificationCount({
-    required String userId,
-    bool? onboardingCompleted,
-    bool? openToTravel,
-    bool? isLeader,
-  });
-
   Future<void> markNotificationRead({required String notificationId, required String userId});
 
   Future<List<Map<String, dynamic>>> getNotificationsForUser({
@@ -26,5 +19,8 @@ abstract class GalleryRemoteDataSource {
     bool? isLeader,
   });
 
-  Future<Map<String, dynamic>> getNotificationById(String id);
+  Future<Map<String, dynamic>> getNotificationById({
+    required String id,
+    required String userId,
+  });
 }

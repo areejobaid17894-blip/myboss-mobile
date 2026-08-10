@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myboss_mobile/core/di/injection.dart';
 import 'package:myboss_mobile/core/notifications/push_registration_service.dart';
 import 'package:myboss_mobile/core/router/post_auth_resolver.dart';
+import 'package:myboss_mobile/core/storage/secure_storage_service.dart';
 import 'package:myboss_mobile/core/theme/app_colors.dart';
 import 'package:myboss_mobile/core/widgets/boss_logo.dart';
 
@@ -27,14 +29,24 @@ class _SessionResolverPageState extends State<SessionResolverPage> {
   }
 
   Future<void> _resolve() async {
+    var userId = widget.userId.trim();
+    if (userId.isEmpty) {
+      userId = (await getIt<SecureStorageService>().getUserId())?.trim() ?? '';
+    }
+
+    if (userId.isEmpty) {
+      if (!mounted) return;
+      context.go('/sign-in');
+      return;
+    }
+
     try {
       final route = await const PostAuthResolver()
-          .resolve(widget.userId)
+          .resolve(userId)
           .timeout(const Duration(seconds: 20));
       if (!mounted) return;
       context.go(route);
-      // Never block navigation — FCM token may take seconds (or fail on some devices).
-      unawaited(registerPushTokenWhenReady(widget.userId));
+      unawaited(registerPushTokenWhenReady(userId));
     } catch (_) {
       if (!mounted) return;
       context.go('/sign-in');

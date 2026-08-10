@@ -2,6 +2,8 @@ import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:myboss_mobile/core/di/injection.dart';
@@ -93,7 +95,13 @@ class NotificationPermission {
         actionsAlignment: MainAxisAlignment.end,
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              final userId = getIt<SessionManager>().currentUser?.id;
+              if (userId != null) {
+                unawaited(registerPushTokenWhenReady(userId));
+              }
+            },
             child: Text(l10n.notificationsEnableLater),
           ),
           BossPrimaryButton(

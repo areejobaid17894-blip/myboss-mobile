@@ -108,6 +108,7 @@ class AppNotification extends Equatable {
     this.entityId,
     this.route,
     this.sentAt,
+    this.imageUrl,
   });
 
   final String id;
@@ -122,6 +123,27 @@ class AppNotification extends Equatable {
   final String? entityId;
   final String? route;
   final DateTime? sentAt;
+  final String? imageUrl;
+
+  bool get hasImage => imageUrl != null && imageUrl!.trim().isNotEmpty;
+
+  AppNotification copyWith({bool? isRead, String? imageUrl}) {
+    return AppNotification(
+      id: id,
+      title: title,
+      body: body,
+      audience: audience,
+      galleryItemId: galleryItemId,
+      createdAt: createdAt,
+      isRead: isRead ?? this.isRead,
+      v: v,
+      type: type,
+      entityId: entityId,
+      route: route,
+      sentAt: sentAt,
+      imageUrl: imageUrl ?? this.imageUrl,
+    );
+  }
 
   factory AppNotification.fromJson(Map<String, dynamic> json) {
     return AppNotification(
@@ -137,6 +159,7 @@ class AppNotification extends Equatable {
       entityId: _jsonString(json['entityId']).isEmpty ? null : _jsonString(json['entityId']),
       route: _jsonString(json['route']).isEmpty ? null : _jsonString(json['route']),
       sentAt: DateTime.tryParse(_jsonString(json['sentAt'])),
+      imageUrl: _jsonString(json['imageUrl']).isEmpty ? null : _jsonString(json['imageUrl']),
     );
   }
 
@@ -154,5 +177,6 @@ class AppNotification extends Equatable {
         entityId,
         route,
         sentAt,
+        imageUrl,
       ];
 }

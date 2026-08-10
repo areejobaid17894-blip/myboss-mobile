@@ -7,18 +7,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   final DioClient _client;
 
   @override
-  Future<Map<String, dynamic>> getConfig() async {
-    final response = await _client.config.get('/chat/config');
-    return Map<String, dynamic>.from(response.data as Map);
-  }
-
-  @override
-  Future<Map<String, dynamic>> getVisitor() async {
-    final response = await _client.config.get('/chat/visitor');
-    return Map<String, dynamic>.from(response.data as Map);
-  }
-
-  @override
   Future<List<Map<String, dynamic>>> getMessages({
     required String peerId,
     String? since,

@@ -9,8 +9,10 @@ import 'package:myboss_mobile/core/session/session_manager.dart';
 import 'package:myboss_mobile/features/auth/presentation/pages/otp_verification_page.dart';
 import 'package:myboss_mobile/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:myboss_mobile/features/gallery/presentation/pages/gallery_page.dart';
+import 'package:myboss_mobile/features/gallery/domain/entities/gallery_item.dart';
 import 'package:myboss_mobile/features/home/presentation/pages/home_page.dart';
 import 'package:myboss_mobile/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:myboss_mobile/features/notifications/presentation/pages/notification_detail_page.dart';
 import 'package:myboss_mobile/features/onboarding/presentation/pages/terms_acceptance_page.dart';
 import 'package:myboss_mobile/features/onboarding/presentation/pages/building_mobility_page.dart';
 import 'package:myboss_mobile/features/onboarding/presentation/pages/vest_size_page.dart';
@@ -30,11 +32,11 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 late final GoRouter appRouter;
 
-void configureAppRouter() {
+void configureAppRouter({String initialLocation = '/sign-in'}) {
   final session = getIt<SessionManager>();
   appRouter = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/sign-in',
+    initialLocation: initialLocation,
     refreshListenable: session,
     redirect: (_, state) => resolveAppRedirect(state.uri.path),
     routes: _appRoutes,
@@ -126,6 +128,15 @@ final _appRoutes = <RouteBase>[
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LiveChatPage(),
     ),
+    GoRoute(
+      path: '/notifications/:id',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        final initial = state.extra as AppNotification?;
+        return NotificationDetailPage(notificationId: id, initial: initial);
+      },
+    ),
 
     // Authenticated shell with bottom navigation
     StatefulShellRoute.indexedStack(
@@ -144,7 +155,7 @@ final _appRoutes = <RouteBase>[
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(path: '/reports', builder: (context, state) => const ReportsPage(embedded: true)),
+            GoRoute(path: '/reports', builder: (context, state) => const ReportsPage()),
           ],
         ),
         StatefulShellBranch(

@@ -134,6 +134,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'Admin announcements and squad alerts will appear here.';
 
   @override
+  String notificationsUnreadSummary(int count) {
+    return '$count unread';
+  }
+
+  @override
+  String get notificationDetailTitle => 'Notification';
+
+  @override
+  String get notificationNotFound =>
+      'This notification is no longer available.';
+
+  @override
+  String get notificationUnreadBadge => 'Unread';
+
+  @override
   String get notificationsEnableTitle => 'Enable notifications';
 
   @override

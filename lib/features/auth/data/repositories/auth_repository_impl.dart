@@ -88,6 +88,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     final userData = data['user'] as Map<String, dynamic>;
     final userId = userData['id'] as String;
+    await _secureStorage.saveUserId(userId);
     if (PushService.pushEnabled) {
       unawaited(registerPushTokenWhenReady(userId));
     }
