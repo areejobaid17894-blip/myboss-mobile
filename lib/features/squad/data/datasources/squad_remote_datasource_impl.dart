@@ -35,9 +35,6 @@ class SquadRemoteDataSourceImpl implements SquadRemoteDataSource {
     final response = await _client.squad.post('/squads', data: {
       'name': name,
       'badge': badge,
-      'leaderId': leaderId,
-      'leaderFirstName': leaderFirstName,
-      'leaderLastName': leaderLastName,
       'governorate': governorate,
       if (building != null) 'building': building,
     });
@@ -52,12 +49,7 @@ class SquadRemoteDataSourceImpl implements SquadRemoteDataSource {
     required String lastName,
     String? building,
   }) async {
-    final response = await _client.squad.post('/squads/$squadId/join', data: {
-      'userId': userId,
-      'firstName': firstName,
-      'lastName': lastName,
-      if (building != null) 'building': building,
-    });
+    final response = await _client.squad.post('/squads/$squadId/join');
     return response.data as Map<String, dynamic>;
   }
 
@@ -89,7 +81,7 @@ class SquadRemoteDataSourceImpl implements SquadRemoteDataSource {
     required String action,
   }) async {
     final response = await _client.squad.put(
-      '/squads/$squadId/requests/$requestId/$leaderId',
+      '/squads/$squadId/requests/$requestId',
       data: {'action': action},
     );
     return response.data as Map<String, dynamic>;
@@ -100,7 +92,7 @@ class SquadRemoteDataSourceImpl implements SquadRemoteDataSource {
     required String squadId,
     required String userId,
   }) async {
-    final response = await _client.squad.post('/squads/$squadId/leave/$userId');
+    final response = await _client.squad.post('/squads/$squadId/leave');
     return response.data as Map<String, dynamic>;
   }
 
@@ -111,7 +103,7 @@ class SquadRemoteDataSourceImpl implements SquadRemoteDataSource {
     required String newLeaderId,
   }) async {
     final response = await _client.squad.put(
-      '/squads/$squadId/leadership/$leaderId',
+      '/squads/$squadId/leadership',
       data: {'newLeaderId': newLeaderId},
     );
     return response.data as Map<String, dynamic>;
@@ -123,7 +115,7 @@ class SquadRemoteDataSourceImpl implements SquadRemoteDataSource {
     required String leaderId,
     required String memberId,
   }) async {
-    final response = await _client.squad.delete('/squads/$squadId/members/$memberId/$leaderId');
+    final response = await _client.squad.delete('/squads/$squadId/members/$memberId');
     return response.data as Map<String, dynamic>;
   }
 }
