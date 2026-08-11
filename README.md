@@ -4,7 +4,7 @@ Flutter employee app — BLoC, clean architecture, Arabic/English l10n.
 
 Connects to the backend through the demo gateway (`:8090`) or direct service ports during development. Demo mode auto-fills OTP so you can walk through flows quickly.
 
-Full stack setup: [Multi-repo setup guide](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/MULTI_REPO_SETUP.md) (**myboss-platform** repo)
+Full stack setup: [New device setup guide](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/NEW_DEVICE_SETUP.md) · [Multi-repo guide](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/MULTI_REPO_SETUP.md) (**myboss-platform** repo)
 
 ---
 
@@ -219,4 +219,6 @@ lib/
 | Employee journey | [EMPLOYEE_JOURNEY_COVERAGE.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/EMPLOYEE_JOURNEY_COVERAGE.md) |
 | Chat API | [CHAT_API.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/api/CHAT_API.md) |
 | Push Firebase setup | [PUSH_FIREBASE_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/PUSH_FIREBASE_SETUP.md) |
-| Full stack setup | [MULTI_REPO_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/MULTI_REPO_SETUP.md) |
+| Full stack setup | [NEW_DEVICE_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/NEW_DEVICE_SETUP.md) |
+| Environment & GitLab vars | [ENV_AND_GITLAB_VARIABLES.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/deployment/ENV_AND_GITLAB_VARIABLES.md) |
+| Multi-repo guide | [MULTI_REPO_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/MULTI_REPO_SETUP.md) |
