@@ -2,7 +2,9 @@
 
 Flutter employee app — BLoC, clean architecture, Arabic/English l10n.
 
-Connects to the backend through the demo gateway (`:8090`) or direct service ports during development. Demo mode auto-fills OTP so you can walk through flows quickly.
+Connects to the backend through **Orange Apigee** (`https://api-demo.orange.com`) in demo/production builds. Local development may use direct service ports or legacy nginx `:8090`.
+
+**API URLs:** [`APIGEE_CLIENT_URLS.md`](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/deployment/APIGEE_CLIENT_URLS.md) (**myboss-platform** repo)
 
 Full stack setup: [New device setup guide](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/NEW_DEVICE_SETUP.md) · [Multi-repo guide](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/MULTI_REPO_SETUP.md) (**myboss-platform** repo)
 
@@ -32,9 +34,19 @@ fvm flutter gen-l10n
 
 ## Run on device or emulator
 
-**1. Start the stack**
+**1. Start the backend** (Docker on a server, or use **Apigee** if already deployed)
 
-Full demo (recommended):
+Apigee demo (no local nginx required):
+
+```bash
+cd myboss-mobile
+fvm flutter run \
+  --dart-define=GATEWAY_ORIGIN=https://api-demo.orange.com \
+  --dart-define=ENV=demo \
+  --dart-define=DEMO_MODE=true
+```
+
+Local full stack (legacy nginx gateway):
 
 ```bash
 cd ../myboss-platform
@@ -44,8 +56,6 @@ ALLOW_DEPLOY=1 ./scripts/deploy-mobile-web.sh
 ```
 
 Gateway: http://127.0.0.1:8090/app/
-
-**Backend data:** Microservices share one MariaDB database (`myboss`) when `DB_ENABLED=true`. Default demo uses in-memory stores — see [DATABASE.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/database/DATABASE.md).
 
 **2. Launch the app**
 
@@ -102,20 +112,20 @@ Or build only:
 
 ## Android APK
 
-### External testers (mobile data)
-
-For people outside your Wi‑Fi — bakes in the Cloudflare tunnel URL:
+### External testers (mobile data) — Apigee
 
 ```bash
-# 1. Tunnel running in myboss-platform
-# 2. Then:
-./build-external-android.sh
-# → build/android-dist/myboss-demo-external.apk
+cd myboss-mobile
+./build-apigee-android.sh
+# → build/android-dist/myboss-apigee-api-demo.orange.com.apk
+
+# Custom Apigee host:
+APIGEE_API_BASE_URL=https://your-apigee-host ./build-apigee-android.sh
 ```
 
-Needs `myboss-platform/demo-public-url.txt` from `./scripts/start-demo-tunnel.sh`.
+Or use `./build-external-android.sh` (defaults to Apigee; legacy tunnel: `USE_NGINX_TUNNEL=true`).
 
-→ [Tunnel + external APK guide](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/deployment/DEMO_TUNNEL_AND_APK.md)
+### External testers (legacy nginx tunnel)
 
 ### Same Wi‑Fi (physical phone)
 
@@ -200,7 +210,8 @@ lib/
 
 | Script | Purpose |
 |--------|---------|
-| `build-external-android.sh` | External testers — tunnel URL, mobile data, push enabled |
+| `build-apigee-android.sh` | **Apigee demo APK** (recommended for testers) |
+| `build-external-android.sh` | Apigee by default; optional nginx tunnel fallback |
 | `build-demo-web.sh` | Flutter web for `/app/` on gateway |
 | `build-local-android.sh` | Release APK for physical device, push enabled |
 | `build-demo-apk.sh` | APK with explicit server IP, push enabled |
@@ -220,5 +231,5 @@ lib/
 | Chat API | [CHAT_API.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/api/CHAT_API.md) |
 | Push Firebase setup | [PUSH_FIREBASE_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/PUSH_FIREBASE_SETUP.md) |
 | Full stack setup | [NEW_DEVICE_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/NEW_DEVICE_SETUP.md) |
-| Environment & GitLab vars | [ENV_AND_GITLAB_VARIABLES.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/deployment/ENV_AND_GITLAB_VARIABLES.md) |
+| Apigee client URLs | [APIGEE_CLIENT_URLS.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/deployment/APIGEE_CLIENT_URLS.md) |
 | Multi-repo guide | [MULTI_REPO_SETUP.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/MULTI_REPO_SETUP.md) |

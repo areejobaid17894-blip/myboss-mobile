@@ -23,7 +23,12 @@ class DemoApiEndpoint {
 
   String get baseOrigin => '$scheme://$host$portSuffix';
 
-  String get healthUrl => '$baseOrigin/health';
+  String get healthUrl {
+    if (_isApigeeHost(host)) {
+      return '$baseOrigin/auth/api/v1/health';
+    }
+    return '$baseOrigin/health';
+  }
 
   String authBaseUrl() => '$baseOrigin/auth/api/v1';
   String userBaseUrl() => '$baseOrigin/user/api/v1';
@@ -31,14 +36,21 @@ class DemoApiEndpoint {
   String squadBaseUrl() => '$baseOrigin/squad/api/v1';
   String surveyBaseUrl() => '$baseOrigin/survey/api/v1';
 
+  static bool _isApigeeHost(String host) =>
+      host.endsWith('.orange.com') || host.endsWith('.orange.jo');
+
   static bool _isTunnelHost(String host) =>
-      host.contains('trycloudflare.com') || host.contains('ngrok');
+      host.contains('trycloudflare.com') ||
+      host.contains('ngrok') ||
+      _isApigeeHost(host);
 
   static DemoApiEndpoint fromHost(String raw) {
     final host = raw.trim();
+    final useHttps = _isTunnelHost(host) || !host.contains(':');
     return DemoApiEndpoint(
       host: host,
-      useHttps: _isTunnelHost(host),
+      useHttps: useHttps,
+      gatewayPort: useHttps && !host.contains(':') ? '' : '8090',
     );
   }
 
@@ -81,7 +93,9 @@ class DemoApiEndpoint {
     return DemoApiEndpoint(
       host: host,
       useHttps: uri.scheme == 'https',
-      gatewayPort: uri.hasPort ? uri.port.toString() : '8090',
+      gatewayPort: uri.hasPort
+          ? uri.port.toString()
+          : (uri.scheme == 'https' ? '' : '8090'),
     );
   }
 
@@ -95,8 +109,9 @@ class DemoApiEndpoint {
     }).toList();
   }
 
-  /// LAN default when no dart-defines are set (tunnel host comes from build scripts).
+  /// Apigee first, then legacy LAN nginx fallback.
   static final defaultEndpoints = [
+    DemoApiEndpoint(host: 'api-demo.orange.com', useHttps: true, gatewayPort: ''),
     DemoApiEndpoint(host: demoServerHost, useHttps: false),
   ];
 }

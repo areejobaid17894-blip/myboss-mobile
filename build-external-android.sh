@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
-# Build Android APK for testers outside your laptop (mobile data / remote).
-# Uses Cloudflare tunnel URL from myboss-platform/demo-public-url.txt (primary)
-# and LAN IP as fallback on same Wi‑Fi.
-#
-# Prerequisites:
-#   - Demo stack on :8090
-#   - ./scripts/start-demo-tunnel.sh (in myboss-platform) — tunnel running
-#
-# Output: build/android-dist/myboss-demo-external.apk
+# Build Android APK for remote testers via Orange Apigee (default).
+# Legacy nginx/Cloudflare fallback: USE_NGINX_TUNNEL=true
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -17,30 +10,35 @@ if ! command -v fvm >/dev/null 2>&1; then
   FLUTTER_BIN="flutter"
 fi
 
+APIGEE_BASE="${APIGEE_API_BASE_URL:-https://api-demo.orange.com}"
 PLATFORM_DIR="$(cd "$(dirname "$0")/../myboss-platform" && pwd)"
 URL_FILE="${MYBOSS_PLATFORM_DIR:-$PLATFORM_DIR}/demo-public-url.txt"
 
-if [ ! -f "$URL_FILE" ]; then
-  echo "ERROR: $URL_FILE not found."
-  echo "Start tunnel first: cd ../myboss-platform && ./scripts/start-demo-tunnel.sh"
-  exit 1
+if [ "${USE_NGINX_TUNNEL:-false}" = "true" ]; then
+  if [ ! -f "$URL_FILE" ]; then
+    echo "ERROR: $URL_FILE not found."
+    echo "Start tunnel: cd ../myboss-platform && ./scripts/start-demo-tunnel.sh"
+    echo "Or use Apigee (default): ./build-external-android.sh"
+    exit 1
+  fi
+  TUNNEL_URL="$(tr -d '[:space:]' < "$URL_FILE")"
+  TUNNEL_HOST="${TUNNEL_URL#https://}"
+  TUNNEL_HOST="${TUNNEL_HOST#http://}"
+  LAN=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "")
+  API_HOSTS="${TUNNEL_HOST}"
+  [ -n "$LAN" ] && API_HOSTS="${TUNNEL_HOST},${LAN}"
+  GATEWAY_ORIGIN="$TUNNEL_URL"
+  OUT_APK="myboss-demo-external-tunnel.apk"
+  echo "==> External Android APK (legacy nginx tunnel)"
+  echo "    Tunnel:  $TUNNEL_URL"
+else
+  API_HOSTS="$APIGEE_BASE"
+  GATEWAY_ORIGIN="$APIGEE_BASE"
+  OUT_APK="myboss-demo-external.apk"
+  echo "==> External Android APK (Orange Apigee)"
+  echo "    Gateway: $APIGEE_BASE"
 fi
 
-TUNNEL_URL="$(tr -d '[:space:]' < "$URL_FILE")"
-TUNNEL_HOST="${TUNNEL_URL#https://}"
-TUNNEL_HOST="${TUNNEL_HOST#http://}"
-
-if [ -z "$TUNNEL_HOST" ]; then
-  echo "ERROR: demo-public-url.txt is empty. Restart the Cloudflare tunnel."
-  exit 1
-fi
-
-LAN=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "")
-API_HOSTS="${TUNNEL_HOST}"
-[ -n "$LAN" ] && API_HOSTS="${TUNNEL_HOST},${LAN}"
-
-echo "==> External Android APK (tunnel-first)"
-echo "    Tunnel:  $TUNNEL_URL"
 echo "    Probes:  $API_HOSTS"
 echo ""
 
@@ -48,33 +46,21 @@ $FLUTTER_BIN pub get
 $FLUTTER_BIN gen-l10n
 $FLUTTER_BIN build apk --release \
   --dart-define=API_HOSTS="$API_HOSTS" \
-  --dart-define=GATEWAY_ORIGIN="$TUNNEL_URL" \
+  --dart-define=GATEWAY_ORIGIN="$GATEWAY_ORIGIN" \
+  --dart-define=ENV=demo \
   --dart-define=DEMO_MODE=true \
   --dart-define=PUSH_ENABLED=true
 
 OUT_DIR="build/android-dist"
 mkdir -p "$OUT_DIR"
-APK="$OUT_DIR/myboss-demo-external.apk"
-cp build/app/outputs/flutter-apk/app-release.apk "$APK"
+cp build/app/outputs/flutter-apk/app-release.apk "$OUT_DIR/$OUT_APK"
 
 echo ""
 echo "=========================================="
 echo " EXTERNAL APK READY"
 echo "=========================================="
-echo "File: $(pwd)/$APK"
-echo "Size: $(du -h "$APK" | cut -f1)"
+echo "File: $(pwd)/$OUT_DIR/$OUT_APK"
+echo "API:  $GATEWAY_ORIGIN"
 echo ""
-echo "Share by email / Drive / WhatsApp."
-echo "Keep Mac awake + cloudflared running."
-echo "If tunnel URL changes, rebuild this APK."
-echo "Login: demo@orange.com + OTP"
-echo ""
-echo "IMPORTANT: Uninstall old apps first if you see 'Welcome back' / 'Create account':"
-echo "  - The Boss App (com.orange.mcmb.*)"
-echo "  - Install ONLY: my boss app (com.myboss.myboss_mobile)"
-echo ""
-echo "Firebase SHA-1 (debug keystore — add in Firebase Console if FCM token fails):"
-/Applications/Android\ Studio.app/Contents/jbr/Contents/Home/bin/keytool -list -v \
-  -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey \
-  -storepass android -keypass android 2>/dev/null | rg "SHA1:" || true
+echo "Legacy tunnel build: USE_NGINX_TUNNEL=true ./build-external-android.sh"
 echo "=========================================="

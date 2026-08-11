@@ -2,6 +2,12 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:myboss_mobile/core/config/demo_api_endpoints.dart';
 import 'package:myboss_mobile/core/config/dev_api_host.dart';
 
+/// Default Orange Apigee demo gateway (override with --dart-define=GATEWAY_ORIGIN=...)
+const apigeeDemoGatewayOrigin = 'https://api-demo.orange.com';
+
+/// Default Orange Apigee production gateway
+const apigeeProductionGatewayOrigin = 'https://api.orange.com';
+
 enum AppEnvironment {
   development,
   demo,
@@ -98,28 +104,28 @@ class EnvConfig {
 
   static const _demo = EnvConfig._(
     environment: AppEnvironment.demo,
-    authBaseUrl: 'https://api-demo.example.com/auth/api/v1',
-    userBaseUrl: 'https://api-demo.example.com/user/api/v1',
-    configBaseUrl: 'https://api-demo.example.com/config/api/v1',
-    squadBaseUrl: 'https://api-demo.example.com/squad/api/v1',
-    surveyBaseUrl: 'https://api-demo.example.com/survey/api/v1',
+    authBaseUrl: '$apigeeDemoGatewayOrigin/auth/api/v1',
+    userBaseUrl: '$apigeeDemoGatewayOrigin/user/api/v1',
+    configBaseUrl: '$apigeeDemoGatewayOrigin/config/api/v1',
+    squadBaseUrl: '$apigeeDemoGatewayOrigin/squad/api/v1',
+    surveyBaseUrl: '$apigeeDemoGatewayOrigin/survey/api/v1',
   );
 
   static const _uat = EnvConfig._(
     environment: AppEnvironment.uat,
-    authBaseUrl: 'https://api-uat.example.com/auth/api/v1',
-    userBaseUrl: 'https://api-uat.example.com/user/api/v1',
-    configBaseUrl: 'https://api-uat.example.com/config/api/v1',
-    squadBaseUrl: 'https://api-uat.example.com/squad/api/v1',
-    surveyBaseUrl: 'https://api-uat.example.com/survey/api/v1',
+    authBaseUrl: '$apigeeDemoGatewayOrigin/auth/api/v1',
+    userBaseUrl: '$apigeeDemoGatewayOrigin/user/api/v1',
+    configBaseUrl: '$apigeeDemoGatewayOrigin/config/api/v1',
+    squadBaseUrl: '$apigeeDemoGatewayOrigin/squad/api/v1',
+    surveyBaseUrl: '$apigeeDemoGatewayOrigin/survey/api/v1',
   );
 
   static const _production = EnvConfig._(
     environment: AppEnvironment.production,
-    authBaseUrl: 'https://api.example.com/auth/api/v1',
-    userBaseUrl: 'https://api.example.com/user/api/v1',
-    configBaseUrl: 'https://api.example.com/config/api/v1',
-    squadBaseUrl: 'https://api.example.com/squad/api/v1',
-    surveyBaseUrl: 'https://api.example.com/survey/api/v1',
+    authBaseUrl: '$apigeeProductionGatewayOrigin/auth/api/v1',
+    userBaseUrl: '$apigeeProductionGatewayOrigin/user/api/v1',
+    configBaseUrl: '$apigeeProductionGatewayOrigin/config/api/v1',
+    squadBaseUrl: '$apigeeProductionGatewayOrigin/squad/api/v1',
+    surveyBaseUrl: '$apigeeProductionGatewayOrigin/survey/api/v1',
   );
 }
