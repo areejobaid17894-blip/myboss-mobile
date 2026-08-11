@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local Flutter web dev — API via Apigee or direct backend ports (no nginx :8090).
+# Local Flutter web dev — direct backend ports :3001–3005.
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -9,21 +9,13 @@ if command -v fvm >/dev/null 2>&1 && [ -f ".fvm/fvm_config.json" ]; then
   FLUTTER_BIN="fvm flutter"
 fi
 
-APIGEE_BASE="${APIGEE_API_BASE_URL:-https://api-demo.orange.com}"
-USE_DIRECT_PORTS="${USE_DIRECT_PORTS:-false}"
-
-if [ "$USE_DIRECT_PORTS" = "true" ]; then
-  API_MODE="direct ports :3001–3005"
-  DART_DEFINES=(--dart-define=ENV=development)
-else
-  API_MODE="$APIGEE_BASE"
-  DART_DEFINES=(--dart-define=GATEWAY_ORIGIN="$APIGEE_BASE" --dart-define=ENV=demo)
-fi
-
-echo "==> Local Flutter web (Dart 3.9.2 / Flutter 3.35.7 via FVM if installed)"
-echo "    API target: $API_MODE"
-echo "    App URL:    http://127.0.0.1:8092"
-echo "    Direct ports: USE_DIRECT_PORTS=true ./run-local-web.sh"
+echo "==> Local Flutter web (employee app)"
+echo "    API: direct ports :3001–3005 (localhost)"
+echo "    App: http://127.0.0.1:8092"
+echo ""
+echo "    For LAN access use:"
+echo "    fvm flutter run -d web-server --web-hostname=0.0.0.0 --web-port=8092 \\"
+echo "      --dart-define=API_HOST=<SERVER_IP> --dart-define=ENV=demo --dart-define=DEMO_MODE=true"
 echo ""
 
 $FLUTTER_BIN pub get
@@ -32,4 +24,5 @@ $FLUTTER_BIN gen-l10n
 $FLUTTER_BIN run -d web-server \
   --web-hostname=127.0.0.1 \
   --web-port=8092 \
-  "${DART_DEFINES[@]}"
+  --dart-define=ENV=development \
+  --dart-define=DEMO_MODE=true

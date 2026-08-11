@@ -1,12 +1,5 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:myboss_mobile/core/config/demo_api_endpoints.dart';
 import 'package:myboss_mobile/core/config/dev_api_host.dart';
-
-/// Default Orange Apigee demo gateway (override with --dart-define=GATEWAY_ORIGIN=...)
-const apigeeDemoGatewayOrigin = 'https://api-demo.orange.com';
-
-/// Default Orange Apigee production gateway
-const apigeeProductionGatewayOrigin = 'https://api.orange.com';
 
 enum AppEnvironment {
   development,
@@ -36,24 +29,6 @@ class EnvConfig {
   bool get isProduction => environment == AppEnvironment.production;
   bool get isDemo => environment == AppEnvironment.demo;
 
-  /// Web app served from the API gateway (same origin — no CORS).
-  static EnvConfig fromWebSameOrigin() {
-    final origin = Uri.base.origin;
-    return fromGatewayOrigin(origin);
-  }
-
-  static EnvConfig fromGatewayOrigin(String origin) {
-    final base = origin.endsWith('/') ? origin.substring(0, origin.length - 1) : origin;
-    return EnvConfig._(
-      environment: AppEnvironment.demo,
-      authBaseUrl: '$base/auth/api/v1',
-      userBaseUrl: '$base/user/api/v1',
-      configBaseUrl: '$base/config/api/v1',
-      squadBaseUrl: '$base/squad/api/v1',
-      surveyBaseUrl: '$base/survey/api/v1',
-    );
-  }
-
   static EnvConfig fromDemoEndpoint(DemoApiEndpoint endpoint) {
     return EnvConfig._(
       environment: AppEnvironment.demo,
@@ -66,34 +41,27 @@ class EnvConfig {
   }
 
   static EnvConfig fromEnvironment() {
-    const gatewayOrigin = String.fromEnvironment('GATEWAY_ORIGIN');
-    if (gatewayOrigin.isNotEmpty) {
-      return fromGatewayOrigin(gatewayOrigin);
-    }
-
     const envString = String.fromEnvironment('ENV', defaultValue: 'development');
 
-    switch (envString) {
-      case 'demo':
-        return _demo;
-      case 'uat':
-        return _uat;
-      case 'production':
-        return _production;
-      default:
-        if (kIsWeb) {
-          return fromWebSameOrigin();
-        }
-        return _development();
-    }
-  }
-
-  static EnvConfig _development() {
+    // All environments use direct microservice ports on API_HOST (or dev defaults).
     final host = resolveDevApiHost();
     logDevApiHostIfDebug(host);
 
+    switch (envString) {
+      case 'demo':
+        return _directPorts(host, AppEnvironment.demo);
+      case 'uat':
+        return _directPorts(host, AppEnvironment.uat);
+      case 'production':
+        return _directPorts(host, AppEnvironment.production);
+      default:
+        return _directPorts(host, AppEnvironment.development);
+    }
+  }
+
+  static EnvConfig _directPorts(String host, AppEnvironment env) {
     return EnvConfig._(
-      environment: AppEnvironment.development,
+      environment: env,
       authBaseUrl: 'http://$host:3001/api/v1',
       userBaseUrl: 'http://$host:3002/api/v1',
       configBaseUrl: 'http://$host:3003/api/v1',
@@ -101,31 +69,4 @@ class EnvConfig {
       surveyBaseUrl: 'http://$host:3005/api/v1',
     );
   }
-
-  static const _demo = EnvConfig._(
-    environment: AppEnvironment.demo,
-    authBaseUrl: '$apigeeDemoGatewayOrigin/auth/api/v1',
-    userBaseUrl: '$apigeeDemoGatewayOrigin/user/api/v1',
-    configBaseUrl: '$apigeeDemoGatewayOrigin/config/api/v1',
-    squadBaseUrl: '$apigeeDemoGatewayOrigin/squad/api/v1',
-    surveyBaseUrl: '$apigeeDemoGatewayOrigin/survey/api/v1',
-  );
-
-  static const _uat = EnvConfig._(
-    environment: AppEnvironment.uat,
-    authBaseUrl: '$apigeeDemoGatewayOrigin/auth/api/v1',
-    userBaseUrl: '$apigeeDemoGatewayOrigin/user/api/v1',
-    configBaseUrl: '$apigeeDemoGatewayOrigin/config/api/v1',
-    squadBaseUrl: '$apigeeDemoGatewayOrigin/squad/api/v1',
-    surveyBaseUrl: '$apigeeDemoGatewayOrigin/survey/api/v1',
-  );
-
-  static const _production = EnvConfig._(
-    environment: AppEnvironment.production,
-    authBaseUrl: '$apigeeProductionGatewayOrigin/auth/api/v1',
-    userBaseUrl: '$apigeeProductionGatewayOrigin/user/api/v1',
-    configBaseUrl: '$apigeeProductionGatewayOrigin/config/api/v1',
-    squadBaseUrl: '$apigeeProductionGatewayOrigin/squad/api/v1',
-    surveyBaseUrl: '$apigeeProductionGatewayOrigin/survey/api/v1',
-  );
 }

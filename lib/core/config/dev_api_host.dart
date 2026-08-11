@@ -11,7 +11,13 @@ String resolveDevApiHost() {
   const override = String.fromEnvironment('API_HOST');
   if (override.isNotEmpty) return override;
 
-  if (kIsWeb) return 'localhost';
+  if (kIsWeb) {
+    final webHost = Uri.base.host;
+    if (webHost.isNotEmpty && webHost != 'localhost' && webHost != '127.0.0.1') {
+      return webHost;
+    }
+    return 'localhost';
+  }
   if (Platform.isAndroid) return '10.0.2.2';
   return 'localhost';
 }

@@ -63,11 +63,9 @@ import 'package:myboss_mobile/features/user/domain/usecases/update_profile_useca
 final getIt = GetIt.instance;
 
 Future<void> configureDependencies() async {
-  // Config — web uses same-origin gateway URLs (see deploy at /app/)
-  if (kIsWeb) {
-    getIt.registerSingleton<EnvConfig>(EnvConfig.fromWebSameOrigin());
-  } else if (const bool.fromEnvironment('DEMO_MODE', defaultValue: false)) {
-    // Demo APK: probe LAN gateway + public tunnel at startup.
+  // Config — web and native use direct microservice ports (API_HOST or browser host).
+  if (const bool.fromEnvironment('DEMO_MODE', defaultValue: false) && !kIsWeb) {
+    // Demo APK: probe LAN hosts at startup.
     getIt.registerSingleton<EnvConfig>(await resolveDemoEnvConfig());
   } else {
     getIt.registerSingleton<EnvConfig>(EnvConfig.fromEnvironment());
