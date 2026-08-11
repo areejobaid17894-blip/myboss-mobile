@@ -1,13 +1,18 @@
 # myboss-mobile
 
-Flutter employee app (Flutter 3.35.7, Dart ≥3.9.2).
+Flutter employee app.
 
-**Install & run:** [INSTALL.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/INSTALL.md)
+**Install:** [INSTALL.md](https://github.com/areejobaid17894-blip/myboss-platform/blob/main/docs/INSTALL.md)
 
-| Mode | Command | Local URL |
-|------|---------|-----------|
-| Emulator | `fvm flutter run --dart-define=ENV=development --dart-define=DEMO_MODE=true` | on device |
-| Employee web | `./run-local-web.sh` | http://127.0.0.1:8092 |
+| Mode | Local URL |
+|------|-----------|
+| Employee web | http://127.0.0.1:8092 |
+| Emulator | `fvm flutter run` — see INSTALL.md |
+
+| Component | Version |
+|-----------|---------|
+| Flutter | 3.35.7 |
+| Dart | ≥3.9.2 |
 
 **Login:** `demo@orange.com` + OTP (auto-fills in demo)
 
