@@ -15,8 +15,10 @@ import 'package:myboss_mobile/core/theme/app_colors.dart';
 import 'package:myboss_mobile/core/widgets/boss_buttons.dart';
 import 'package:myboss_mobile/core/widgets/boss_design_widgets.dart';
 import 'package:myboss_mobile/core/widgets/otp_input.dart';
+import 'package:myboss_mobile/features/auth/domain/entities/user.dart';
 import 'package:myboss_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:myboss_mobile/features/onboarding/presentation/terms_acceptance_flow.dart';
+import 'package:myboss_mobile/features/user/domain/entities/user_profile.dart';
 import 'package:myboss_mobile/features/user/domain/usecases/get_user_usecase.dart';
 
 class OtpVerificationPage extends StatefulWidget {
@@ -97,19 +99,23 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     context.read<AuthBloc>().add(VerifyTwoFactorRequested(sessionId: widget.sessionId, code: code));
   }
 
-  Future<void> _continueAfterAuth(BuildContext context, String userId) async {
+  Future<void> _continueAfterAuth(BuildContext context, User authUser) async {
     setState(() => _isLoading = true);
 
-    final userResponse = await getIt<GetUserUseCase>().call(userId);
+    final userResponse = await getIt<GetUserUseCase>().call(authUser.id);
     if (!mounted) return;
 
-    if (userResponse.failure != null || userResponse.profile == null) {
-      setState(() => _isLoading = false);
-      context.go('/sign-in');
-      return;
-    }
+    // OTP already succeeded — never bounce to login on a profile fetch hiccup.
+    final profile = userResponse.profile ??
+        UserProfile(
+          id: authUser.id,
+          email: authUser.email,
+          firstName: authUser.firstName,
+          lastName: authUser.lastName,
+          role: 'employee',
+          onboardingCompleted: false,
+        );
 
-    final profile = userResponse.profile!;
     getIt<SessionManager>().setUser(profile);
 
     setState(() => _isLoading = false);
@@ -117,7 +123,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     if (!mounted) return;
     if (acceptedProfile == null) return;
 
-    context.go('/resolve', extra: userId);
+    context.go('/resolve', extra: authUser.id);
   }
 
   @override
@@ -135,7 +141,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             listener: (context, state) {
               if (state is AuthAuthenticated) {
                 OtpSessionStore.clear();
-                _continueAfterAuth(context, state.user.id);
+                _continueAfterAuth(context, state.user);
               } else if (state is AuthOtpResent) {
                 _startTimer();
                 setState(() {

@@ -8,6 +8,7 @@ abstract class UserRemoteDataSource {
     String? buildingName,
     String? governorate,
     bool? openToTravel,
+    List<String>? preferredGovernorates,
     bool? onboardingCompleted,
   });
 

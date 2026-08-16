@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myboss_mobile/core/di/injection.dart';
@@ -8,6 +10,8 @@ import 'package:myboss_mobile/features/gallery/domain/usecases/gallery_usecases.
 import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
 import 'package:myboss_mobile/features/squad/domain/usecases/resolve_user_squad_usecase.dart';
 import 'package:myboss_mobile/features/squad/domain/usecases/squad_usecases.dart';
+import 'package:myboss_mobile/features/survey/data/survey_offline_sync.dart';
+import 'package:myboss_mobile/features/survey/data/survey_schema_cache.dart';
 import 'package:myboss_mobile/features/survey/domain/entities/survey.dart';
 import 'package:myboss_mobile/features/survey/domain/usecases/survey_usecases.dart';
 
@@ -82,6 +86,7 @@ class HomeCubit extends Cubit<HomeState> {
     this._listSurveysUseCase,
     this._getNotificationsForUserUseCase,
     this._unreadTracker,
+    this._schemaCache,
   ) : super(const HomeState());
 
   final ResolveUserSquadUseCase _resolveUserSquadUseCase;
@@ -91,13 +96,14 @@ class HomeCubit extends Cubit<HomeState> {
   final ListSurveysUseCase _listSurveysUseCase;
   final GetNotificationsForUserUseCase _getNotificationsForUserUseCase;
   final NotificationUnreadTracker _unreadTracker;
+  final SurveySchemaCache _schemaCache;
 
   static const _fallbackSurveys = [
     DynamicSurvey(
       id: 'survey-consumer',
       segment: 'consumer',
-      title: 'Customer Visit Survey',
-      description: 'Capture feedback from consumer customers in the field.',
+      title: 'Customer visit survey',
+      description: 'Feedback survey for consumer segment',
       isActive: true,
       questions: [],
     ),
@@ -105,36 +111,53 @@ class HomeCubit extends Cubit<HomeState> {
       id: 'survey-business',
       segment: 'business',
       title: 'Business Customer Survey',
-      description: 'Structured visit template for business accounts.',
+      description: 'Feedback survey for business segment customers',
       isActive: true,
       questions: [],
     ),
     DynamicSurvey(
       id: 'survey-employee',
       segment: 'employee',
-      title: 'Employee Feedback Loop',
-      description: 'Share your experience as a squad member.',
+      title: 'Employee feedback loop',
+      description: 'Post-event employee experience survey',
       isActive: true,
       questions: [],
     ),
   ];
 
   Future<void> load(String userId) async {
-    emit(state.copyWith(isLoading: true, clearError: true));
+    final session = getIt<SessionManager>();
+    final cachedSurveys = await _schemaCache.listAll();
+    final cachedSquad = session.currentSquad;
+    final hasOfflineStart = cachedSquad != null && cachedSurveys.any((survey) => survey.questions.isNotEmpty);
+
+    emit(state.copyWith(
+      isLoading: !hasOfflineStart,
+      squad: cachedSquad,
+      surveys: cachedSurveys.isNotEmpty ? cachedSurveys : state.surveys,
+      confirmedNoSquad: cachedSquad == null && session.confirmedNoSquad,
+      squadLoadFailed: false,
+      clearError: true,
+    ));
+
+    if (userId.isNotEmpty) {
+      unawaited(getIt<SurveyOfflineSync>().flushPending(userId: userId));
+    }
 
     final surveysResponse = await _listSurveysUseCase();
-    final surveys = surveysResponse.surveys.isNotEmpty ? surveysResponse.surveys : _fallbackSurveys;
+    final surveys = surveysResponse.surveys.isNotEmpty
+        ? surveysResponse.surveys
+        : (cachedSurveys.isNotEmpty ? cachedSurveys : _fallbackSurveys);
 
     if (userId.isEmpty) {
       emit(state.copyWith(isLoading: false, surveys: surveys, clearSquad: true, clearJoinStatus: true));
       return;
     }
 
-    final session = getIt<SessionManager>();
     final user = session.currentUser;
 
     final squadResponse = await _resolveUserSquadUseCase(userId);
-    final squad = squadResponse.squad;
+    final squad = squadResponse.squad ?? cachedSquad;
 
     Future<int> fetchUnread({Squad? activeSquad}) async {
       final listResponse = await _getNotificationsForUserUseCase(

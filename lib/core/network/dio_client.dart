@@ -84,8 +84,10 @@ class DioClient {
         final data = error.response?.data;
         final code = extractDioCode(data);
         final orangeCode = data is Map<String, dynamic> && data['code'] is int ? data['code'] as int : null;
-        if (shouldEndSessionForUnauthorized(statusCode: statusCode, errorCode: code) ||
-            shouldEndSessionForOrangeCode(orangeCode)) {
+        final path = error.requestOptions.path;
+        if (!isPreAuthUnauthorizedPath(path) &&
+            (shouldEndSessionForUnauthorized(statusCode: statusCode, errorCode: code) ||
+                shouldEndSessionForOrangeCode(orangeCode))) {
           await endUserSession();
         }
         handler.next(error);

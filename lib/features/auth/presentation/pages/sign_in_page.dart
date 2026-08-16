@@ -19,115 +19,152 @@ class SignInPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => getIt<AuthBloc>(),
-      child: BlocBuilder<LocaleCubit, Locale>(
-        builder: (context, locale) {
-          final l10n = AppLocalizations.of(context);
+      child: const _SignInView(),
+    );
+  }
+}
 
-          return BlocConsumer<AuthBloc, AuthState>(
-            listener: (context, state) {
-              if (state is AuthTwoFactorRequired) {
-                context.go(
-                  '/verify-otp',
-                  extra: OtpRouteArgs(
-                    sessionId: state.sessionId,
-                    email: state.email,
-                    demoOtpCode: state.demoOtpCode,
-                  ),
-                );
-              }
-            },
-            builder: (context, state) {
-              final isLoading = state is AuthLoading;
-              final errorMessage = state is AuthError
-                  ? localizedFailureMessage(l10n, state.failure)
-                  : null;
+class _SignInView extends StatefulWidget {
+  const _SignInView();
 
-              return Scaffold(
-                body: SafeArea(
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: const LanguageToggleButton(),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const SizedBox(height: 48),
-                            const BossLogo(),
-                            const SizedBox(height: 40),
-                            Text(l10n.signInTitle, style: AppTextStyles.h1),
-                            const SizedBox(height: 8),
-                            Text(l10n.signInSubtitle, style: AppTextStyles.muted),
-                            if (isDemoBuild) ...[
-                              const SizedBox(height: 16),
-                              TextButton(
-                                onPressed: isLoading
-                                    ? null
-                                    : () => _showDemoAccounts(context, l10n),
-                                child: Text(l10n.demoAccountLabel, style: AppTextStyles.link),
-                              ),
-                            ],
-                            const SizedBox(height: 22),
-                            _SignInForm(
-                              isLoading: isLoading,
-                              errorMessage: errorMessage,
-                              buttonLabel: '${l10n.sendMyCode} →',
-                              hintText: l10n.emailHint,
-                              onSubmit: (email) {
-                                context.read<AuthBloc>().add(SignInRequested(email: email));
-                              },
-                            ),
-                            const Spacer(),
-                            Text(
-                              l10n.signInFooterHelp,
-                              textAlign: TextAlign.center,
-                              style: AppTextStyles.small,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+  @override
+  State<_SignInView> createState() => _SignInViewState();
+}
+
+class _SignInViewState extends State<_SignInView> {
+  final _emailController = TextEditingController(text: demoEmployeeEmail);
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LocaleCubit, Locale>(
+      builder: (context, locale) {
+        final l10n = AppLocalizations.of(context);
+
+        return BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthTwoFactorRequired) {
+              context.go(
+                '/verify-otp',
+                extra: OtpRouteArgs(
+                  sessionId: state.sessionId,
+                  email: state.email,
+                  demoOtpCode: state.demoOtpCode,
                 ),
               );
-            },
-          );
-        },
-      ),
+            }
+          },
+          builder: (context, state) {
+            final isLoading = state is AuthLoading;
+            final errorMessage = state is AuthError
+                ? localizedFailureMessage(l10n, state.failure)
+                : null;
+
+            return Scaffold(
+              body: SafeArea(
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: const LanguageToggleButton(),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 48),
+                          const BossLogo(),
+                          const SizedBox(height: 40),
+                          Text(l10n.signInTitle, style: AppTextStyles.h1),
+                          const SizedBox(height: 8),
+                          Text(l10n.signInSubtitle, style: AppTextStyles.muted),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: isLoading
+                                ? null
+                                : () => _showDemoAccounts(context, l10n),
+                            child: Text(l10n.demoAccountLabel, style: AppTextStyles.link),
+                          ),
+                          const SizedBox(height: 22),
+                          _SignInForm(
+                            emailController: _emailController,
+                            isLoading: isLoading,
+                            errorMessage: errorMessage,
+                            buttonLabel: '${l10n.sendMyCode} →',
+                            hintText: l10n.emailHint,
+                            onSubmit: (email) {
+                              context.read<AuthBloc>().add(SignInRequested(email: email));
+                            },
+                          ),
+                          const Spacer(),
+                          Text(
+                            l10n.signInFooterHelp,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.small,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
   void _showDemoAccounts(BuildContext context, AppLocalizations l10n) {
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(26))),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(22, 22, 22, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.otherTestAccountsTitle, style: AppTextStyles.h2),
-            const SizedBox(height: 8),
-            Text(l10n.otherTestAccountsDescription, style: AppTextStyles.small),
-            const SizedBox(height: 16),
-            ...demoTestAccounts.map(
-              (account) => ListTile(
-                title: Text(account.label),
-                subtitle: Text('${account.email}\n${account.scenario}', style: AppTextStyles.small),
-                isThreeLine: true,
-                onTap: () {
-                  Navigator.pop(ctx);
-                  context.read<AuthBloc>().add(SignInRequested(email: account.email));
-                },
-              ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.75),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l10n.otherTestAccountsTitle, style: AppTextStyles.h2),
+                const SizedBox(height: 8),
+                Text(l10n.otherTestAccountsDescription, style: AppTextStyles.small),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      for (final account in demoTestAccounts)
+                        ListTile(
+                          title: Text(account.label),
+                          subtitle: Text(
+                            '${account.email}\n${account.scenario}',
+                            style: AppTextStyles.small,
+                          ),
+                          isThreeLine: true,
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            _emailController.text = account.email;
+                            setState(() {});
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -136,6 +173,7 @@ class SignInPage extends StatelessWidget {
 
 class _SignInForm extends StatefulWidget {
   const _SignInForm({
+    required this.emailController,
     required this.isLoading,
     required this.errorMessage,
     required this.buttonLabel,
@@ -143,6 +181,7 @@ class _SignInForm extends StatefulWidget {
     required this.onSubmit,
   });
 
+  final TextEditingController emailController;
   final bool isLoading;
   final String? errorMessage;
   final String buttonLabel;
@@ -154,20 +193,12 @@ class _SignInForm extends StatefulWidget {
 }
 
 class _SignInFormState extends State<_SignInForm> {
-  final _emailController = TextEditingController(text: demoEmployeeEmail);
-
   static final _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  bool get _isValid => _emailRegex.hasMatch(_emailController.text.trim());
+  bool get _isValid => _emailRegex.hasMatch(widget.emailController.text.trim());
 
   void _submit() {
-    final email = _emailController.text.trim();
+    final email = widget.emailController.text.trim();
     if (!_emailRegex.hasMatch(email)) return;
     widget.onSubmit(email);
   }
@@ -178,7 +209,7 @@ class _SignInFormState extends State<_SignInForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BossEmailField(
-          controller: _emailController,
+          controller: widget.emailController,
           hintText: widget.hintText,
           errorText: widget.errorMessage,
           enabled: !widget.isLoading,

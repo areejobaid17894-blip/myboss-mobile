@@ -14,6 +14,7 @@ class UpdateOnboardingUseCase {
     String? buildingName,
     String? governorate,
     bool? openToTravel,
+    List<String>? preferredGovernorates,
     bool? onboardingCompleted,
   }) {
     return _repository.updateOnboarding(
@@ -23,6 +24,7 @@ class UpdateOnboardingUseCase {
       buildingName: buildingName,
       governorate: governorate,
       openToTravel: openToTravel,
+      preferredGovernorates: preferredGovernorates,
       onboardingCompleted: onboardingCompleted,
     );
   }

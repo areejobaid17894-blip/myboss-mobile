@@ -72,7 +72,7 @@ class _HomeView extends StatelessWidget {
                     );
                   },
                 ),
-                if (state.isLoading)
+                if (state.isLoading && !state.hasActiveSquad && state.surveys.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 24),
                     child: Center(child: CircularProgressIndicator(color: AppColors.orange)),
@@ -91,6 +91,7 @@ class _HomeView extends StatelessWidget {
                       SquadRequiredPanel(
                         l10n: l10n,
                         hasPendingJoinRequest: true,
+                        isPendingInvite: state.joinStatus?.isPendingInvite ?? false,
                         pendingSquadName: state.joinStatus?.squadName,
                         onRefresh: () => context.read<HomeCubit>().load(user?.id ?? ''),
                         showFeatureList: false,
@@ -137,6 +138,7 @@ class _HomeView extends StatelessWidget {
                       badge: state.squad!.badge,
                       progress: state.progress,
                       progressLabel: l10n.surveyProgress,
+                      targetReachedHint: l10n.surveyTargetReachedHint,
                     ),
                     const SizedBox(height: 20),
                     if (state.report != null)
@@ -253,6 +255,26 @@ class _SurveyTemplateTile extends StatelessWidget {
     }
   }
 
+  String _localizedTitle(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return switch (survey.segment) {
+      'consumer' => l10n.surveyTemplateConsumerTitle,
+      'business' => l10n.surveyTemplateBusinessTitle,
+      'employee' => l10n.surveyTemplateEmployeeTitle,
+      _ => survey.title,
+    };
+  }
+
+  String _localizedDescription(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return switch (survey.segment) {
+      'consumer' => l10n.surveyTemplateConsumerDesc,
+      'business' => l10n.surveyTemplateBusinessDesc,
+      'employee' => l10n.surveyTemplateEmployeeDesc,
+      _ => survey.description ?? '',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -286,13 +308,13 @@ class _SurveyTemplateTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(survey.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                    Text(_localizedTitle(context), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                     const SizedBox(height: 4),
                     Text(segmentLabel, style: const TextStyle(color: AppColors.orangeDark, fontSize: 12, fontWeight: FontWeight.w600)),
-                    if (survey.description != null && survey.description!.isNotEmpty) ...[
+                    if (_localizedDescription(context).isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Text(
-                        survey.description!,
+                        _localizedDescription(context),
                         style: const TextStyle(color: AppColors.grey600, fontSize: 13, height: 1.35),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -316,18 +338,22 @@ class _ProgressCard extends StatelessWidget {
     required this.badge,
     required this.progress,
     required this.progressLabel,
+    required this.targetReachedHint,
   });
 
   final String squadName;
   final String badge;
   final dynamic progress;
   final String progressLabel;
+  final String targetReachedHint;
 
   @override
   Widget build(BuildContext context) {
-    final completed = progress?.completed ?? 0;
-    final target = progress?.target ?? 50;
-    final percentage = ((progress?.percentage ?? 0) as num) / 100;
+    final completed = (progress?.completed as num?)?.toInt() ?? 0;
+    final target = (progress?.target as num?)?.toInt() ?? 50;
+    final safeTarget = target <= 0 ? 50 : target;
+    final percentage = completed / safeTarget;
+    final reached = completed >= safeTarget;
 
     return Container(
       width: double.infinity,
@@ -348,7 +374,7 @@ class _ProgressCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(progressLabel, style: const TextStyle(color: AppColors.grey600, fontSize: 13)),
-              Text('$completed / $target', style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text('$completed / $safeTarget', style: const TextStyle(fontWeight: FontWeight.w700)),
             ],
           ),
           const SizedBox(height: 8),
@@ -361,6 +387,18 @@ class _ProgressCard extends StatelessWidget {
               color: AppColors.orange,
             ),
           ),
+          if (reached) ...[
+            const SizedBox(height: 12),
+            Text(
+              AppLocalizations.of(context).surveyTargetSmashed(completed, safeTarget),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.orangeDark),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              targetReachedHint,
+              style: const TextStyle(color: AppColors.grey600, fontSize: 12, height: 1.35),
+            ),
+          ],
         ],
       ),
     );
@@ -479,6 +517,7 @@ class _NotificationBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: onTap,
@@ -495,7 +534,7 @@ class _NotificationBanner extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                count == 1 ? 'You have 1 new announcement' : 'You have $count new announcements',
+                count == 1 ? l10n.homeNewNotifications(1) : l10n.homeNewNotifications(count),
                 style: const TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
               ),
             ),

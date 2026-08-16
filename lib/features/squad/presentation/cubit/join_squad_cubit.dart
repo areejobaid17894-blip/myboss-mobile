@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myboss_mobile/core/di/injection.dart';
 import 'package:myboss_mobile/core/error/failures.dart';
 import 'package:myboss_mobile/core/network/dio_client.dart';
+import 'package:myboss_mobile/features/config/domain/entities/employee_settings.dart';
+import 'package:myboss_mobile/features/config/domain/usecases/get_employee_settings_usecase.dart';
 import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
 import 'package:myboss_mobile/features/squad/domain/usecases/squad_usecases.dart';
 
@@ -18,6 +20,7 @@ class JoinSquadState extends Equatable {
     this.joinError,
     this.pendingSquadId,
     this.pendingSquadName,
+    this.settings,
   });
 
   final bool isLoading;
@@ -30,6 +33,9 @@ class JoinSquadState extends Equatable {
   final Failure? joinError;
   final String? pendingSquadId;
   final String? pendingSquadName;
+  final EmployeeSettings? settings;
+
+  bool get employeeJoinClosed => settings?.isEmployeeJoinClosed() ?? false;
 
   List<PublicSquad> get squads {
     var results = allSquads;
@@ -75,6 +81,7 @@ class JoinSquadState extends Equatable {
     String? pendingSquadId,
     String? pendingSquadName,
     bool clearPending = false,
+    EmployeeSettings? settings,
   }) {
     return JoinSquadState(
       isLoading: isLoading ?? this.isLoading,
@@ -87,6 +94,7 @@ class JoinSquadState extends Equatable {
       joinError: clearJoinError ? null : (joinError ?? this.joinError),
       pendingSquadId: clearPending ? null : (pendingSquadId ?? this.pendingSquadId),
       pendingSquadName: clearPending ? null : (pendingSquadName ?? this.pendingSquadName),
+      settings: settings ?? this.settings,
     );
   }
 
@@ -102,6 +110,7 @@ class JoinSquadState extends Equatable {
         joinError,
         pendingSquadId,
         pendingSquadName,
+        settings,
       ];
 }
 
@@ -110,11 +119,13 @@ class JoinSquadCubit extends Cubit<JoinSquadState> {
     this._listSquadsUseCase,
     this._joinSquadUseCase,
     this._getJoinStatusUseCase,
+    this._getEmployeeSettingsUseCase,
   ) : super(const JoinSquadState());
 
   final ListSquadsUseCase _listSquadsUseCase;
   final JoinSquadUseCase _joinSquadUseCase;
   final GetJoinStatusUseCase _getJoinStatusUseCase;
+  final GetEmployeeSettingsUseCase _getEmployeeSettingsUseCase;
 
   Future<void> load({String? userId}) async {
     emit(state.copyWith(isLoading: true, clearError: true));
@@ -127,8 +138,9 @@ class JoinSquadCubit extends Cubit<JoinSquadState> {
     }
 
     final response = await _listSquadsUseCase();
+    final settingsResponse = await _getEmployeeSettingsUseCase();
     if (response.failure != null) {
-      emit(state.copyWith(isLoading: false, error: response.failure));
+      emit(state.copyWith(isLoading: false, error: response.failure, settings: settingsResponse.settings));
       return;
     }
     emit(state.copyWith(
@@ -136,6 +148,7 @@ class JoinSquadCubit extends Cubit<JoinSquadState> {
       allSquads: response.squads ?? const [],
       pendingSquadId: joinStatus?.hasPendingJoinRequest == true ? joinStatus?.squadId : null,
       pendingSquadName: joinStatus?.hasPendingJoinRequest == true ? joinStatus?.squadName : null,
+      settings: settingsResponse.settings,
     ));
   }
 
@@ -160,6 +173,7 @@ class JoinSquadCubit extends Cubit<JoinSquadState> {
     required String lastName,
     String? building,
   }) async {
+    if (state.employeeJoinClosed) return;
     emit(state.copyWith(joiningSquadId: squadId, clearJoinError: true));
     final response = await _joinSquadUseCase(
       squadId: squadId,

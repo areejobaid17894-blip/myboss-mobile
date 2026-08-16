@@ -46,16 +46,51 @@ class UserProfile extends Equatable {
       firstName: json['firstName'] as String? ?? '',
       lastName: json['lastName'] as String? ?? '',
       role: json['role'] as String? ?? 'employee',
-      onboardingCompleted: json['onboardingCompleted'] as bool? ?? false,
+      onboardingCompleted: _readBool(json['onboardingCompleted']) ?? false,
       termsAcceptedAt: json['termsAcceptedAt'] as String?,
       vestSize: json['vestSize'] as String?,
       buildingId: json['buildingId'] as String?,
       buildingName: json['buildingName'] as String?,
       governorate: json['governorate'] as String?,
-      openToTravel: json['openToTravel'] as bool?,
+      openToTravel: _readBool(json['openToTravel']),
       squadId: json['squadId'] as String?,
-      profileEditCount: json['profileEditCount'] as int? ?? 0,
+      profileEditCount: _readInt(json['profileEditCount']) ?? 0,
     );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'email': email,
+        'firstName': firstName,
+        'lastName': lastName,
+        'role': role,
+        'onboardingCompleted': onboardingCompleted,
+        'termsAcceptedAt': termsAcceptedAt,
+        'vestSize': vestSize,
+        'buildingId': buildingId,
+        'buildingName': buildingName,
+        'governorate': governorate,
+        'openToTravel': openToTravel,
+        'squadId': squadId,
+        'profileEditCount': profileEditCount,
+      };
+
+  static bool? _readBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      if (normalized == 'true' || normalized == '1') return true;
+      if (normalized == 'false' || normalized == '0') return false;
+    }
+    return null;
+  }
+
+  static int? _readInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 
   UserProfile copyWith({

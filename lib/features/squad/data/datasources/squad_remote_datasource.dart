@@ -34,6 +34,24 @@ abstract class SquadRemoteDataSource {
     required String action,
   });
 
+  Future<Map<String, dynamic>> listSuggestedMembers(String squadId);
+
+  Future<Map<String, dynamic>> inviteMember({
+    required String squadId,
+    required String userId,
+  });
+
+  Future<Map<String, dynamic>> respondToInvite({
+    required String squadId,
+    required String requestId,
+    required String action,
+  });
+
+  Future<Map<String, dynamic>> cancelInvite({
+    required String squadId,
+    required String requestId,
+  });
+
   Future<Map<String, dynamic>> leaveSquad({
     required String squadId,
     required String userId,

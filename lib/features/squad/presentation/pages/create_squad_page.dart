@@ -11,6 +11,9 @@ import 'package:myboss_mobile/core/widgets/boss_design_widgets.dart';
 import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
 import 'package:myboss_mobile/features/squad/presentation/cubit/create_squad_cubit.dart';
 import 'package:myboss_mobile/features/squad/presentation/squad_formation_navigation.dart';
+import 'package:myboss_mobile/features/squad/presentation/widgets/squad_join_policy_banner.dart';
+import 'package:myboss_mobile/features/config/domain/entities/employee_settings.dart';
+import 'package:myboss_mobile/features/config/domain/usecases/get_employee_settings_usecase.dart';
 
 class CreateSquadPage extends StatelessWidget {
   const CreateSquadPage({super.key});
@@ -34,6 +37,19 @@ class _CreateSquadView extends StatefulWidget {
 class _CreateSquadViewState extends State<_CreateSquadView> {
   final _nameController = TextEditingController();
   String _selectedBadge = squadBadges.first;
+  EmployeeSettings? _settings;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final response = await getIt<GetEmployeeSettingsUseCase>()();
+    if (!mounted) return;
+    setState(() => _settings = response.settings);
+  }
 
   @override
   void dispose() {
@@ -60,7 +76,9 @@ class _CreateSquadViewState extends State<_CreateSquadView> {
           final isLoading = state is CreateSquadSubmitting;
           final errorFailure = state is CreateSquadError ? state.failure : null;
           final error = errorFailure != null ? localizedFailureMessage(l10n, errorFailure) : null;
-          final canSubmit = user != null && _nameController.text.trim().isNotEmpty;
+          final canSubmit = user != null &&
+              _nameController.text.trim().isNotEmpty &&
+              !(_settings?.isEmployeeJoinClosed() ?? false);
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -74,7 +92,9 @@ class _CreateSquadViewState extends State<_CreateSquadView> {
                       Text(l10n.createSquadNameTitle, style: AppTextStyles.h1),
                       const SizedBox(height: 8),
                       Text(l10n.createSquadNameDesc, style: AppTextStyles.muted),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
+                      const SquadJoinPolicyBanner(),
+                      const SizedBox(height: 16),
                       BossField(
                         leading: const Text('🏷️', style: TextStyle(fontSize: 18)),
                         child: TextField(

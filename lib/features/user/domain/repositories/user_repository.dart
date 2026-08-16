@@ -11,6 +11,7 @@ abstract class UserRepository {
     String? buildingName,
     String? governorate,
     bool? openToTravel,
+    List<String>? preferredGovernorates,
     bool? onboardingCompleted,
   });
 

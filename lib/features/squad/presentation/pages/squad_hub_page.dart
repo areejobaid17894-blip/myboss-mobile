@@ -9,6 +9,7 @@ import 'package:myboss_mobile/core/theme/app_colors.dart';
 import 'package:myboss_mobile/core/widgets/boss_buttons.dart';
 import 'package:myboss_mobile/core/widgets/boss_design_widgets.dart';
 import 'package:myboss_mobile/features/squad/presentation/cubit/squad_hub_cubit.dart';
+import 'package:myboss_mobile/features/squad/presentation/widgets/squad_join_policy_banner.dart';
 
 class SquadHubPage extends StatelessWidget {
   const SquadHubPage({super.key});
@@ -50,7 +51,9 @@ class _SquadHubView extends StatelessWidget {
               Text(l10n.formYourSquad, style: AppTextStyles.h1),
               const SizedBox(height: 8),
               Text(l10n.formYourSquadDesc, style: AppTextStyles.muted),
-              const SizedBox(height: 22),
+              const SizedBox(height: 16),
+              const SquadJoinPolicyBanner(),
+              const SizedBox(height: 16),
               BlocBuilder<SquadHubCubit, SquadHubState>(
                 builder: (context, state) {
                   if (state is SquadHubLoaded) {
@@ -58,6 +61,8 @@ class _SquadHubView extends StatelessWidget {
                     final max = state.stats.maxSquads;
                     final progress = max > 0 ? formed / max : 0.0;
                     final pending = state.hasPendingJoinRequest;
+                    final closed = state.employeeJoinClosed;
+                    final blockActions = pending || closed;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -69,54 +74,87 @@ class _SquadHubView extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(l10n.pendingJoinRequestTitle, style: AppTextStyles.h2),
+                                Text(
+                                  state.isPendingInvite ? l10n.pendingInviteTitle : l10n.pendingJoinRequestTitle,
+                                  style: AppTextStyles.h2,
+                                ),
                                 const SizedBox(height: 8),
-                                Text(l10n.pendingJoinRequestBody(state.joinStatus?.squadName ?? ''), style: AppTextStyles.small),
+                                Text(
+                                  state.isPendingInvite
+                                      ? l10n.pendingInviteBody(state.joinStatus?.squadName ?? '')
+                                      : l10n.pendingJoinRequestBody(state.joinStatus?.squadName ?? ''),
+                                  style: AppTextStyles.small,
+                                ),
+                                if (state.isPendingInvite) ...[
+                                  const SizedBox(height: 12),
+                                  if (state.error != null) ...[
+                                    AppErrorView(failure: state.error!),
+                                    const SizedBox(height: 8),
+                                  ],
+                                  if (!closed)
+                                    BossPrimaryButton(
+                                      label: l10n.acceptInvite,
+                                      isLoading: state.isRespondingInvite,
+                                      onPressed: state.isRespondingInvite
+                                          ? null
+                                          : () => context.read<SquadHubCubit>().respondToInvite(accept: true),
+                                    ),
+                                  const SizedBox(height: 8),
+                                  BossPrimaryButton(
+                                    label: l10n.rejectInvite,
+                                    variant: BossButtonVariant.outline,
+                                    onPressed: state.isRespondingInvite
+                                        ? null
+                                        : () => context.read<SquadHubCubit>().respondToInvite(accept: false),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
                           const SizedBox(height: 12),
                         ],
-                        BossCard(
-                          borderColor: AppColors.orange,
-                          borderWidth: 2,
-                          onTap: pending ? null : () => context.push('/squad/create'),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(l10n.createSquad, style: AppTextStyles.h2),
-                                    const SizedBox(height: 6),
-                                    Text(l10n.createSquadDesc, style: AppTextStyles.muted),
-                                  ],
+                        if (!closed) ...[
+                          BossCard(
+                            borderColor: AppColors.orange,
+                            borderWidth: 2,
+                            onTap: blockActions ? null : () => context.push('/squad/create'),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(l10n.createSquad, style: AppTextStyles.h2),
+                                      const SizedBox(height: 6),
+                                      Text(l10n.createSquadDesc, style: AppTextStyles.muted),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const Text('🚩', style: TextStyle(fontSize: 22)),
-                            ],
+                                const Text('🚩', style: TextStyle(fontSize: 22)),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        BossCard(
-                          onTap: pending ? null : () => context.push('/squad/join'),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(l10n.joinSquad, style: AppTextStyles.h2),
-                                    const SizedBox(height: 6),
-                                    Text(l10n.joinSquadDesc, style: AppTextStyles.muted),
-                                  ],
+                          const SizedBox(height: 12),
+                          BossCard(
+                            onTap: blockActions ? null : () => context.push('/squad/join'),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(l10n.joinSquad, style: AppTextStyles.h2),
+                                      const SizedBox(height: 6),
+                                      Text(l10n.joinSquadDesc, style: AppTextStyles.muted),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const Text('🤝', style: TextStyle(fontSize: 22)),
-                            ],
+                                const Text('🤝', style: TextStyle(fontSize: 22)),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 14),
+                          const SizedBox(height: 14),
+                        ],
                         BossCard(
                           backgroundColor: AppColors.orangeLight,
                           borderColor: AppColors.orangeBorder,

@@ -105,6 +105,56 @@ class RespondToJoinRequestUseCase {
   }
 }
 
+class ListSuggestedMembersUseCase {
+  const ListSuggestedMembersUseCase(this._repository);
+  final SquadRepository _repository;
+
+  Future<({Failure? failure, SuggestedSquadMembers? suggestions})> call(String squadId) {
+    return _repository.listSuggestedMembers(squadId);
+  }
+}
+
+class InviteMemberUseCase {
+  const InviteMemberUseCase(this._repository);
+  final SquadRepository _repository;
+
+  Future<({Failure? failure, SquadJoinRequest? request})> call({
+    required String squadId,
+    required String userId,
+  }) {
+    return _repository.inviteMember(squadId: squadId, userId: userId);
+  }
+}
+
+class CancelInviteUseCase {
+  const CancelInviteUseCase(this._repository);
+  final SquadRepository _repository;
+
+  Future<({Failure? failure, Squad? squad})> call({
+    required String squadId,
+    required String requestId,
+  }) {
+    return _repository.cancelInvite(squadId: squadId, requestId: requestId);
+  }
+}
+
+class RespondToInviteUseCase {
+  const RespondToInviteUseCase(this._repository);
+  final SquadRepository _repository;
+
+  Future<({Failure? failure, Squad? squad})> call({
+    required String squadId,
+    required String requestId,
+    required bool accept,
+  }) {
+    return _repository.respondToInvite(
+      squadId: squadId,
+      requestId: requestId,
+      accept: accept,
+    );
+  }
+}
+
 class LeaveSquadUseCase {
   const LeaveSquadUseCase(this._repository);
   final SquadRepository _repository;

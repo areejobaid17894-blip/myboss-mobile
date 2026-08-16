@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myboss_mobile/core/di/injection.dart';
 import 'package:myboss_mobile/core/localization/app_localizations.dart';
 import 'package:myboss_mobile/core/theme/app_colors.dart';
 import 'package:myboss_mobile/core/widgets/boss_buttons.dart';
+import 'package:myboss_mobile/features/config/domain/entities/employee_settings.dart';
+import 'package:myboss_mobile/features/config/domain/usecases/get_employee_settings_usecase.dart';
+import 'package:myboss_mobile/features/squad/presentation/widgets/squad_join_policy_banner.dart';
 
 /// Clear call-to-action when a feature needs an active squad.
-class SquadRequiredPanel extends StatelessWidget {
+class SquadRequiredPanel extends StatefulWidget {
   const SquadRequiredPanel({
     super.key,
     required this.l10n,
@@ -13,6 +17,7 @@ class SquadRequiredPanel extends StatelessWidget {
     this.description,
     this.showFeatureList = true,
     this.hasPendingJoinRequest = false,
+    this.isPendingInvite = false,
     this.pendingSquadName,
     this.onRefresh,
   });
@@ -22,18 +27,44 @@ class SquadRequiredPanel extends StatelessWidget {
   final String? description;
   final bool showFeatureList;
   final bool hasPendingJoinRequest;
+  final bool isPendingInvite;
   final String? pendingSquadName;
   final VoidCallback? onRefresh;
 
   @override
+  State<SquadRequiredPanel> createState() => _SquadRequiredPanelState();
+}
+
+class _SquadRequiredPanelState extends State<SquadRequiredPanel> {
+  EmployeeSettings? _settings;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final response = await getIt<GetEmployeeSettingsUseCase>()();
+    if (!mounted) return;
+    setState(() => _settings = response.settings);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final panelTitle = hasPendingJoinRequest
-        ? l10n.pendingJoinRequestTitle
-        : (title ?? l10n.noSquadUnlockTitle);
-    final panelDesc = hasPendingJoinRequest
-        ? l10n.pendingJoinRequestBody(pendingSquadName ?? '')
-        : (description ?? l10n.noSquadUnlockDesc);
-    final icon = hasPendingJoinRequest ? Icons.hourglass_top_rounded : Icons.lock_outline_rounded;
+    final l10n = widget.l10n;
+    final closed = _settings?.isEmployeeJoinClosed() ?? false;
+    final panelTitle = widget.isPendingInvite
+        ? l10n.pendingInviteTitle
+        : widget.hasPendingJoinRequest
+            ? l10n.pendingJoinRequestTitle
+            : (widget.title ?? l10n.noSquadUnlockTitle);
+    final panelDesc = widget.isPendingInvite
+        ? l10n.pendingInviteBody(widget.pendingSquadName ?? '')
+        : widget.hasPendingJoinRequest
+            ? l10n.pendingJoinRequestBody(widget.pendingSquadName ?? '')
+            : (widget.description ?? l10n.noSquadUnlockDesc);
+    final icon = widget.hasPendingJoinRequest ? Icons.hourglass_top_rounded : Icons.lock_outline_rounded;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -62,7 +93,7 @@ class SquadRequiredPanel extends StatelessWidget {
               ),
             ],
           ),
-          if (showFeatureList && !hasPendingJoinRequest) ...[
+          if (widget.showFeatureList && !widget.hasPendingJoinRequest) ...[
             const SizedBox(height: 16),
             Text(l10n.noSquadLockedFeaturesTitle, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
             const SizedBox(height: 8),
@@ -71,20 +102,32 @@ class SquadRequiredPanel extends StatelessWidget {
             _LockedFeatureRow(icon: Icons.assignment_rounded, label: l10n.noSquadFeatureSurveys),
           ],
           const SizedBox(height: 16),
-          if (hasPendingJoinRequest)
+          SquadJoinPolicyBanner(settings: _settings, compact: true),
+          const SizedBox(height: 12),
+          if (widget.isPendingInvite)
+            BossPrimaryButton(
+              label: l10n.goToMySquad,
+              onPressed: () => context.push('/my-squad'),
+            )
+          else if (widget.hasPendingJoinRequest)
             OutlinedButton(
-              onPressed: onRefresh,
+              onPressed: widget.onRefresh,
               style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
               child: Text(l10n.refresh),
             )
-          else
-            Row(
+          else if (!closed)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: BossPrimaryButton(
-                    label: l10n.joinSquad,
-                    onPressed: () => context.push('/squad/join'),
-                  ),
+                BossPrimaryButton(
+                  label: l10n.createSquad,
+                  onPressed: () => context.push('/squad/create'),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  onPressed: () => context.push('/squad/join'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  child: Text(l10n.joinSquad),
                 ),
               ],
             ),

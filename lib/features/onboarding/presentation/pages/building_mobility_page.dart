@@ -188,6 +188,7 @@ class _BuildingMobilityViewState extends State<_BuildingMobilityView> {
                             buildingName: _selectedBuilding!.name,
                             governorate: _selectedBuilding!.governorate,
                             openToTravel: _openToTravel,
+                            preferredGovernorates: _preferredGovernorates.toList(),
                           ),
                 ),
               ],

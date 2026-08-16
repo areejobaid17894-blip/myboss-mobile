@@ -1,21 +1,23 @@
 import 'demo_server_host.dart';
+import 'dev_api_host.dart';
 
-/// Direct microservice endpoints for demo/release builds (no Apigee, no nginx gateway).
-/// Build script passes --dart-define=API_HOST=host or API_HOSTS=host1,host2
+/// Single backend origin. Build/run scripts pass `--dart-define=API_HOST=host`.
 class DemoApiEndpoint {
   const DemoApiEndpoint({required this.host});
 
   final String host;
+  static const int apiPort = int.fromEnvironment('API_PORT', defaultValue: 3001);
 
   String get baseOrigin => 'http://$host';
+  String get apiBaseUrl => 'http://$host:$apiPort/api/v1';
 
-  String authBaseUrl() => 'http://$host:3001/api/v1';
-  String userBaseUrl() => 'http://$host:3002/api/v1';
-  String configBaseUrl() => 'http://$host:3003/api/v1';
-  String squadBaseUrl() => 'http://$host:3004/api/v1';
-  String surveyBaseUrl() => 'http://$host:3005/api/v1';
+  String authBaseUrl() => apiBaseUrl;
+  String userBaseUrl() => apiBaseUrl;
+  String configBaseUrl() => apiBaseUrl;
+  String squadBaseUrl() => apiBaseUrl;
+  String surveyBaseUrl() => apiBaseUrl;
 
-  String get healthUrl => 'http://$host:3001/api/v1/health';
+  String get healthUrl => '$apiBaseUrl/health';
 
   static DemoApiEndpoint fromHost(String raw) {
     final host = raw.trim();
@@ -52,6 +54,11 @@ class DemoApiEndpoint {
       return _dedupe(endpoints);
     }
 
+    // Prefer the same host resolution as local development (emulator → 10.0.2.2).
+    final local = resolveDevApiHost();
+    if (local.isNotEmpty) {
+      return [DemoApiEndpoint(host: local)];
+    }
     return defaultEndpoints;
   }
 

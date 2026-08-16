@@ -1,14 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:myboss_mobile/core/error/failures.dart';
 import 'package:myboss_mobile/core/network/dio_error_mapper.dart';
+import 'package:myboss_mobile/core/session/session_offline_store.dart';
 import 'package:myboss_mobile/features/squad/data/datasources/squad_remote_datasource.dart';
 import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
 import 'package:myboss_mobile/features/squad/domain/repositories/squad_repository.dart';
 
 class SquadRepositoryImpl implements SquadRepository {
-  const SquadRepositoryImpl(this._remoteDataSource);
+  const SquadRepositoryImpl(this._remoteDataSource, this._offlineStore);
 
   final SquadRemoteDataSource _remoteDataSource;
+  final SessionOfflineStore _offlineStore;
 
   @override
   Future<({Failure? failure, SquadStats? stats})> getStats() async {
@@ -111,8 +113,16 @@ class SquadRepositoryImpl implements SquadRepository {
       if (e.response?.statusCode == 404) {
         return (failure: null, squad: null);
       }
+      final cached = await _offlineStore.loadSquad();
+      if (cached != null) {
+        return (failure: null, squad: cached);
+      }
       return (failure: mapDioError(e), squad: null);
     } catch (_) {
+      final cached = await _offlineStore.loadSquad();
+      if (cached != null) {
+        return (failure: null, squad: cached);
+      }
       return (failure: const ServerFailure(), squad: null);
     }
   }
@@ -155,6 +165,68 @@ class SquadRepositoryImpl implements SquadRepository {
         leaderId: leaderId,
         action: accept ? 'accepted' : 'rejected',
       );
+      return (failure: null, squad: Squad.fromJson(data));
+    } on DioException catch (e) {
+      return (failure: mapDioError(e), squad: null);
+    } catch (_) {
+      return (failure: const ServerFailure(), squad: null);
+    }
+  }
+
+  @override
+  Future<({Failure? failure, SuggestedSquadMembers? suggestions})> listSuggestedMembers(String squadId) async {
+    try {
+      final data = await _remoteDataSource.listSuggestedMembers(squadId);
+      return (failure: null, suggestions: SuggestedSquadMembers.fromJson(data));
+    } on DioException catch (e) {
+      return (failure: mapDioError(e), suggestions: null);
+    } catch (_) {
+      return (failure: const ServerFailure(), suggestions: null);
+    }
+  }
+
+  @override
+  Future<({Failure? failure, SquadJoinRequest? request})> inviteMember({
+    required String squadId,
+    required String userId,
+  }) async {
+    try {
+      final data = await _remoteDataSource.inviteMember(squadId: squadId, userId: userId);
+      return (failure: null, request: SquadJoinRequest.fromJson(data));
+    } on DioException catch (e) {
+      return (failure: mapDioError(e), request: null);
+    } catch (_) {
+      return (failure: const ServerFailure(), request: null);
+    }
+  }
+
+  @override
+  Future<({Failure? failure, Squad? squad})> respondToInvite({
+    required String squadId,
+    required String requestId,
+    required bool accept,
+  }) async {
+    try {
+      final data = await _remoteDataSource.respondToInvite(
+        squadId: squadId,
+        requestId: requestId,
+        action: accept ? 'accepted' : 'rejected',
+      );
+      return (failure: null, squad: Squad.fromJson(data));
+    } on DioException catch (e) {
+      return (failure: mapDioError(e), squad: null);
+    } catch (_) {
+      return (failure: const ServerFailure(), squad: null);
+    }
+  }
+
+  @override
+  Future<({Failure? failure, Squad? squad})> cancelInvite({
+    required String squadId,
+    required String requestId,
+  }) async {
+    try {
+      final data = await _remoteDataSource.cancelInvite(squadId: squadId, requestId: requestId);
       return (failure: null, squad: Squad.fromJson(data));
     } on DioException catch (e) {
       return (failure: mapDioError(e), squad: null);

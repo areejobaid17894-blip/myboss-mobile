@@ -16,13 +16,7 @@ Firebase project: **my-boss-app-38576**
 
 ## 2. Add plist to the project
 
-```bash
-cd myboss-mobile
-chmod +x scripts/setup-ios-firebase.sh build-ios-demo.sh
-./scripts/setup-ios-firebase.sh ~/Downloads/GoogleService-Info.plist
-```
-
-This copies the plist to `ios/Runner/` and runs `flutterfire configure` to update `lib/firebase_options.dart`.
+Copy `GoogleService-Info.plist` to `ios/Runner/` and run `flutterfire configure` if you need to refresh `lib/firebase_options.dart`.
 
 ---
 
@@ -87,7 +81,7 @@ Login: `demo@orange.com` + OTP → allow notifications.
 
 | Symptom | Fix |
 |---------|-----|
-| `Firebase not configured` | Run `./scripts/setup-ios-firebase.sh` |
+| `Firebase not configured` | Add `GoogleService-Info.plist` under `ios/Runner/` |
 | No APNs token | Use physical device; check Push capability in Xcode |
 | Push not delivered | Upload APNs `.p8` to Firebase Cloud Messaging |
 | `aps-environment` mismatch | Use `development` for debug builds, `production` for release |

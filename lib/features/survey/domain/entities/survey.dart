@@ -27,6 +27,11 @@ class QuestionOption extends Equatable {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'label': label,
+      };
+
   @override
   List<Object?> get props => [id, label];
 }
@@ -73,6 +78,18 @@ class SurveyQuestion extends Equatable {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'order': order,
+        'type': type,
+        'title': title,
+        'description': description,
+        'required': required,
+        'options': options?.map((e) => e.toJson()).toList(),
+        'validation': validation,
+        'section': section,
+      };
+
   @override
   List<Object?> get props => [id, order, type, title, description, required, options, validation, section];
 }
@@ -112,6 +129,15 @@ class DynamicSurvey extends Equatable {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'segment': segment,
+        'title': title,
+        'description': description,
+        'isActive': isActive,
+        'questions': questions.map((e) => e.toJson()).toList(),
+      };
 
   @override
   List<Object?> get props => [id, segment, title, description, isActive, questions];

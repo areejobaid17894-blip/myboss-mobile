@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:myboss_mobile/core/di/injection.dart';
 import 'package:myboss_mobile/core/notifications/push_registration_service.dart';
 import 'package:myboss_mobile/core/router/post_auth_resolver.dart';
+import 'package:myboss_mobile/core/session/session_manager.dart';
 import 'package:myboss_mobile/core/storage/secure_storage_service.dart';
 import 'package:myboss_mobile/core/theme/app_colors.dart';
 import 'package:myboss_mobile/core/widgets/boss_logo.dart';
@@ -45,11 +46,17 @@ class _SessionResolverPageState extends State<SessionResolverPage> {
           .resolve(userId)
           .timeout(const Duration(seconds: 20));
       if (!mounted) return;
-      context.go(route);
+      // Prefer onboarding over login when resolution is ambiguous.
+      context.go(route == '/sign-in' ? '/onboarding/vest-size' : route);
       unawaited(registerPushTokenWhenReady(userId));
     } catch (_) {
       if (!mounted) return;
-      context.go('/sign-in');
+      final session = getIt<SessionManager>();
+      final route = PostAuthResolver.routeFromCachedSession(
+        profile: session.currentUser,
+        hasSquad: session.currentSquad != null,
+      );
+      context.go(route);
     }
   }
 

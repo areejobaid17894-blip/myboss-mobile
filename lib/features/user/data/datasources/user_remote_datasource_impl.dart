@@ -20,6 +20,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     String? buildingName,
     String? governorate,
     bool? openToTravel,
+    List<String>? preferredGovernorates,
     bool? onboardingCompleted,
   }) async {
     final body = <String, dynamic>{
@@ -28,6 +29,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       if (buildingName != null) 'buildingName': buildingName,
       if (governorate != null) 'governorate': governorate,
       if (openToTravel != null) 'openToTravel': openToTravel,
+      if (preferredGovernorates != null) 'preferredGovernorates': preferredGovernorates,
       if (onboardingCompleted != null) 'onboardingCompleted': onboardingCompleted,
     };
     final response = await _client.user.put('/users/$id/onboarding', data: body);

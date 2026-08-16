@@ -31,9 +31,18 @@ class _SquadAccessGateState extends State<SquadAccessGate> {
   }
 
   Future<void> _load() async {
-    setState(() => _loading = true);
-
     final session = getIt<SessionManager>();
+    final cached = session.currentSquad;
+    if (cached != null && mounted) {
+      setState(() {
+        _loading = false;
+        _squad = cached;
+        _joinStatus = null;
+      });
+    } else if (mounted) {
+      setState(() => _loading = true);
+    }
+
     final squadResponse = await getIt<ResolveUserSquadUseCase>().call(widget.userId);
 
     if (!mounted) return;
@@ -43,6 +52,15 @@ class _SquadAccessGateState extends State<SquadAccessGate> {
       setState(() {
         _loading = false;
         _squad = squadResponse.squad;
+        _joinStatus = null;
+      });
+      return;
+    }
+
+    if (cached != null) {
+      setState(() {
+        _loading = false;
+        _squad = cached;
         _joinStatus = null;
       });
       return;
@@ -79,6 +97,7 @@ class _SquadAccessGateState extends State<SquadAccessGate> {
       child: SquadRequiredPanel(
         l10n: l10n,
         hasPendingJoinRequest: _joinStatus?.hasPendingJoinRequest ?? false,
+        isPendingInvite: _joinStatus?.isPendingInvite ?? false,
         pendingSquadName: _joinStatus?.squadName,
         onRefresh: _load,
       ),

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myboss_mobile/core/error/failures.dart';
 import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
+import 'package:myboss_mobile/features/squad/domain/squad_name_validator.dart';
 import 'package:myboss_mobile/features/squad/domain/usecases/squad_usecases.dart';
 
 sealed class CreateSquadState extends Equatable {
@@ -49,9 +50,15 @@ class CreateSquadCubit extends Cubit<CreateSquadState> {
     required String governorate,
     String? building,
   }) async {
+    final validationCode = SquadNameValidator.validate(name);
+    if (validationCode != null) {
+      emit(CreateSquadError(ValidationFailure(code: validationCode)));
+      return;
+    }
+
     emit(const CreateSquadSubmitting());
     final response = await _createSquadUseCase(
-      name: name,
+      name: SquadNameValidator.normalize(name),
       badge: badge,
       leaderId: leaderId,
       leaderFirstName: leaderFirstName,

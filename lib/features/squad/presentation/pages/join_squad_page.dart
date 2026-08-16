@@ -14,32 +14,49 @@ import 'package:myboss_mobile/core/widgets/boss_design_widgets.dart';
 import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
 import 'package:myboss_mobile/features/squad/presentation/cubit/join_squad_cubit.dart';
 import 'package:myboss_mobile/features/squad/presentation/squad_formation_navigation.dart';
+import 'package:myboss_mobile/features/squad/presentation/widgets/squad_join_policy_banner.dart';
 
 class JoinSquadPage extends StatelessWidget {
-  const JoinSquadPage({super.key});
+  const JoinSquadPage({super.key, this.initialCode});
+
+  /// Prefill search when opened from an invite link (`/squad/join?code=...`).
+  final String? initialCode;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) {
         final userId = getIt<SessionManager>().currentUser?.id ?? '';
-        return getIt<JoinSquadCubit>()..load(userId: userId);
+        final cubit = getIt<JoinSquadCubit>()..load(userId: userId);
+        final code = initialCode?.trim();
+        if (code != null && code.isNotEmpty) {
+          cubit.setSearchQuery(code);
+        }
+        return cubit;
       },
-      child: const _JoinSquadView(),
+      child: _JoinSquadView(initialCode: initialCode),
     );
   }
 }
 
 class _JoinSquadView extends StatefulWidget {
-  const _JoinSquadView();
+  const _JoinSquadView({this.initialCode});
+
+  final String? initialCode;
 
   @override
   State<_JoinSquadView> createState() => _JoinSquadViewState();
 }
 
 class _JoinSquadViewState extends State<_JoinSquadView> {
-  final _searchController = TextEditingController();
+  late final TextEditingController _searchController;
   Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.initialCode?.trim() ?? '');
+  }
 
   @override
   void dispose() {
@@ -108,6 +125,8 @@ class _JoinSquadViewState extends State<_JoinSquadView> {
                                 Text(l10n.findYourSquad, style: AppTextStyles.h1),
                                 const SizedBox(height: 8),
                                 Text(l10n.joinSquadBrowseAllDesc, style: AppTextStyles.muted),
+                                const SizedBox(height: 12),
+                                SquadJoinPolicyBanner(settings: state.settings),
                                 const SizedBox(height: 16),
                                 Row(
                                   children: [
@@ -234,7 +253,7 @@ class _JoinSquadViewState extends State<_JoinSquadView> {
                                       joinLabel: l10n.join,
                                       requestSentLabel: l10n.requestSent,
                                       fullLabel: l10n.full,
-                                      onJoin: user == null || visibleSquads[i].isFull
+                                      onJoin: user == null || visibleSquads[i].isFull || state.employeeJoinClosed
                                           ? null
                                           : () => context.read<JoinSquadCubit>().join(
                                                 squadId: visibleSquads[i].id,
@@ -362,60 +381,70 @@ class _SquadTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BossCard(
-      padding: const EdgeInsets.all(15),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.cloud,
-              borderRadius: BorderRadius.circular(14),
+    return Opacity(
+      opacity: squad.isFull ? 0.55 : 1,
+      child: BossCard(
+        padding: const EdgeInsets.all(15),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.cloud,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Text(squad.badge, style: const TextStyle(fontSize: 22)),
             ),
-            child: Text(squad.badge, style: const TextStyle(fontSize: 22)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  squad.name,
-                  style: AppTextStyles.h2,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${squad.squadCode} · ${squad.governorate} · ${squad.memberCount}/${squad.maxMembers}',
-                  style: AppTextStyles.small,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textDirection: TextDirection.ltr,
-                ),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    squad.name,
+                    style: AppTextStyles.h2,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${squad.squadCode} · ${squad.governorate} · ${squad.memberCount}/${squad.maxMembers}',
+                    style: AppTextStyles.small,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textDirection: TextDirection.ltr,
+                  ),
+                  if (squad.isFull) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      AppLocalizations.of(context).squadFullNoSeats(squad.memberCount, squad.maxMembers),
+                      style: const TextStyle(color: AppColors.grey600, fontSize: 11, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 96,
-            child: BossPrimaryButton(
-              label: squad.isFull
-                  ? fullLabel
-                  : isRequestSent
-                      ? requestSentLabel
-                      : joinLabel,
-              compact: true,
-              variant: squad.isFull || isRequestSent ? BossButtonVariant.outline : BossButtonVariant.brand,
-              isLoading: isJoining,
-              onPressed: squad.isFull || isRequestSent ? null : onJoin,
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 96,
+              child: BossPrimaryButton(
+                label: squad.isFull
+                    ? fullLabel
+                    : isRequestSent
+                        ? requestSentLabel
+                        : joinLabel,
+                compact: true,
+                variant: squad.isFull || isRequestSent ? BossButtonVariant.outline : BossButtonVariant.brand,
+                isLoading: isJoining,
+                onPressed: squad.isFull || isRequestSent ? null : onJoin,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

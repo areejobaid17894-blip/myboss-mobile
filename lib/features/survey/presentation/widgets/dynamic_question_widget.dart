@@ -14,11 +14,13 @@ class DynamicQuestionWidget extends StatelessWidget {
     required this.question,
     required this.value,
     required this.onChanged,
+    this.errorText,
   });
 
   final SurveyQuestion question;
   final dynamic value;
   final ValueChanged<dynamic> onChanged;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +46,13 @@ class DynamicQuestionWidget extends StatelessWidget {
           const SizedBox(height: 28),
         ],
         _buildInput(context, l10n),
+        if (errorText != null && errorText!.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Text(
+            errorText!,
+            style: const TextStyle(color: AppColors.error, fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+        ],
       ],
     );
   }
@@ -73,20 +82,24 @@ class DynamicQuestionWidget extends StatelessWidget {
           onChanged: onChanged,
         );
       case QuestionType.consentName:
-        return _TextInput(initialValue: value as String?, hint: l10n.fullName, onChanged: onChanged);
+        return _TextInput(
+          initialValue: value as String?,
+          hint: l10n.fullName,
+          onChanged: onChanged,
+        );
       case QuestionType.consentNationalId:
         return _TextInput(
           initialValue: value as String?,
-          hint: l10n.nationalId,
+          hint: '99xxxxxxxx',
           keyboardType: TextInputType.number,
-          maxLength: (question.validation?['maxLength'] as num?)?.toInt(),
-          digitsOnly: question.validation?['digitsOnly'] == true,
+          maxLength: (question.validation?['maxLength'] as num?)?.toInt() ?? 10,
+          digitsOnly: true,
           onChanged: onChanged,
         );
       case QuestionType.consentPhone:
         return _TextInput(
           initialValue: value as String?,
-          hint: (question.validation?['pattern'] as String?) ?? '+962 7X XXX XXXX',
+          hint: (question.validation?['pattern'] as String?) ?? '+962 77 XXX XXXX',
           keyboardType: TextInputType.phone,
           onChanged: onChanged,
         );

@@ -88,6 +88,46 @@ class SquadRemoteDataSourceImpl implements SquadRemoteDataSource {
   }
 
   @override
+  Future<Map<String, dynamic>> listSuggestedMembers(String squadId) async {
+    final response = await _client.squad.get('/squads/$squadId/suggested-members');
+    return response.data as Map<String, dynamic>;
+  }
+
+  @override
+  Future<Map<String, dynamic>> inviteMember({
+    required String squadId,
+    required String userId,
+  }) async {
+    final response = await _client.squad.post(
+      '/squads/$squadId/invites',
+      data: {'userId': userId},
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  @override
+  Future<Map<String, dynamic>> respondToInvite({
+    required String squadId,
+    required String requestId,
+    required String action,
+  }) async {
+    final response = await _client.squad.put(
+      '/squads/$squadId/invites/$requestId',
+      data: {'action': action},
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  @override
+  Future<Map<String, dynamic>> cancelInvite({
+    required String squadId,
+    required String requestId,
+  }) async {
+    final response = await _client.squad.delete('/squads/$squadId/invites/$requestId');
+    return response.data as Map<String, dynamic>;
+  }
+
+  @override
   Future<Map<String, dynamic>> leaveSquad({
     required String squadId,
     required String userId,

@@ -31,7 +31,22 @@ Future<void> endUserSession() async {
   }
 }
 
+/// Auth endpoints that return 401 for bad OTP/credentials — never a reason to
+/// wipe an in-progress login or bounce the user off the OTP screen.
+bool isPreAuthUnauthorizedPath(String path) {
+  final normalized = path.toLowerCase();
+  return normalized.contains('/auth/sign-in') ||
+      normalized.contains('/auth/admin-sign-in') ||
+      normalized.contains('/auth/verify-2fa') ||
+      normalized.contains('/auth/resend-otp') ||
+      normalized.contains('/auth/resend');
+}
+
 /// Returns true when an HTTP 401 should terminate the local session.
+///
+/// Orange code 41 / `AUTH_INVALID_OTP` must NOT end the session — that is the
+/// wrong-OTP response during verify-2fa. Ending the session there navigates to
+/// `/sign-in` and looks like "OTP kicked me back to login".
 bool shouldEndSessionForUnauthorized({required int? statusCode, String? errorCode}) {
   if (statusCode != 401) return false;
   if (errorCode == null || errorCode.isEmpty) return true;
@@ -42,10 +57,14 @@ bool shouldEndSessionForUnauthorized({required int? statusCode, String? errorCod
     'AUTH_INVALID_REFRESH_TOKEN',
   };
   if (sessionCodes.contains(errorCode)) return true;
-  return errorCode.startsWith('AUTH_SESSION') || errorCode.startsWith('AUTH_INVALID');
+  if (errorCode.startsWith('AUTH_SESSION')) return true;
+  // Do not treat AUTH_INVALID_OTP / AUTH_INVALID_CREDENTIALS as session expiry.
+  return false;
 }
 
 bool shouldEndSessionForOrangeCode(int? orangeCode) {
   if (orangeCode == null) return false;
-  return orangeCode == 40 || orangeCode == 41 || orangeCode == 42;
+  // 40 = missing credentials, 42 = expired/invalid session.
+  // 41 = invalid OTP or credentials — keep the user on the auth flow.
+  return orangeCode == 40 || orangeCode == 42;
 }

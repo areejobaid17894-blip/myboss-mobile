@@ -157,10 +157,22 @@ class _ProfileViewState extends State<_ProfileView> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(14)),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Text(l10n.openToTravel, style: const TextStyle(fontWeight: FontWeight.w600)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.openToTravel, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 4),
+                          Text(
+                            l10n.openToTravelDesc,
+                            style: const TextStyle(color: AppColors.grey600, fontSize: 12, height: 1.35),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 12),
                     Switch(
                       value: _openToTravel,
                       activeThumbColor: AppColors.orange,

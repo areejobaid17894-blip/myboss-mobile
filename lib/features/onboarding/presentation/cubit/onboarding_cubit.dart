@@ -70,6 +70,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     required String buildingName,
     required String governorate,
     required bool openToTravel,
+    List<String> preferredGovernorates = const [],
   }) async {
     emit(state.copyWith(isSubmitting: true, clearSubmitError: true));
     final response = await _updateOnboardingUseCase(
@@ -79,6 +80,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       buildingName: buildingName,
       governorate: governorate,
       openToTravel: openToTravel,
+      preferredGovernorates: preferredGovernorates,
       onboardingCompleted: true,
     );
     if (response.failure != null) {

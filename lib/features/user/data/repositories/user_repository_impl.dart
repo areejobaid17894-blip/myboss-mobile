@@ -2,14 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:myboss_mobile/core/notifications/push_log.dart';
 import 'package:myboss_mobile/core/error/failures.dart';
 import 'package:myboss_mobile/core/network/dio_error_mapper.dart';
+import 'package:myboss_mobile/core/session/session_offline_store.dart';
 import 'package:myboss_mobile/features/user/data/datasources/user_remote_datasource.dart';
 import 'package:myboss_mobile/features/user/domain/entities/user_profile.dart';
 import 'package:myboss_mobile/features/user/domain/repositories/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
-  const UserRepositoryImpl(this._remoteDataSource);
+  const UserRepositoryImpl(this._remoteDataSource, this._offlineStore);
 
   final UserRemoteDataSource _remoteDataSource;
+  final SessionOfflineStore _offlineStore;
 
   @override
   Future<({Failure? failure, UserProfile? profile})> getUser(String id) async {
@@ -17,9 +19,11 @@ class UserRepositoryImpl implements UserRepository {
       final data = await _remoteDataSource.getUser(id);
       return (failure: null, profile: UserProfile.fromJson(data));
     } on DioException catch (e) {
-      return (failure: mapDioError(e), profile: null);
+      final cached = await _offlineStore.loadProfile(userId: id);
+      return (failure: mapDioError(e), profile: cached);
     } catch (_) {
-      return (failure: const ServerFailure(), profile: null);
+      final cached = await _offlineStore.loadProfile(userId: id);
+      return (failure: const ServerFailure(), profile: cached);
     }
   }
 
@@ -31,6 +35,7 @@ class UserRepositoryImpl implements UserRepository {
     String? buildingName,
     String? governorate,
     bool? openToTravel,
+    List<String>? preferredGovernorates,
     bool? onboardingCompleted,
   }) async {
     try {
@@ -41,6 +46,7 @@ class UserRepositoryImpl implements UserRepository {
         buildingName: buildingName,
         governorate: governorate,
         openToTravel: openToTravel,
+        preferredGovernorates: preferredGovernorates,
         onboardingCompleted: onboardingCompleted,
       );
       return (failure: null, profile: UserProfile.fromJson(data));

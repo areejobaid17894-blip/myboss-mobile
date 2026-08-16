@@ -8,6 +8,7 @@ import 'package:myboss_mobile/core/notifications/notification_unread_tracker.dar
 import 'package:myboss_mobile/core/notifications/push_registration_service.dart';
 import 'package:myboss_mobile/core/notifications/push_service.dart';
 import 'package:myboss_mobile/core/session/session_manager.dart';
+import 'package:myboss_mobile/core/session/session_offline_store.dart';
 import 'package:myboss_mobile/core/storage/secure_storage_service.dart';
 import 'package:myboss_mobile/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:myboss_mobile/features/auth/data/datasources/auth_remote_datasource_impl.dart';
@@ -47,6 +48,9 @@ import 'package:myboss_mobile/features/squad/presentation/cubit/squad_hub_cubit.
 import 'package:myboss_mobile/features/survey/data/datasources/survey_remote_datasource.dart';
 import 'package:myboss_mobile/features/survey/data/datasources/survey_remote_datasource_impl.dart';
 import 'package:myboss_mobile/features/survey/data/repositories/survey_repository_impl.dart';
+import 'package:myboss_mobile/features/survey/data/survey_draft_store.dart';
+import 'package:myboss_mobile/features/survey/data/survey_offline_sync.dart';
+import 'package:myboss_mobile/features/survey/data/survey_schema_cache.dart';
 import 'package:myboss_mobile/features/survey/domain/repositories/survey_repository.dart';
 import 'package:myboss_mobile/features/survey/domain/usecases/survey_usecases.dart';
 import 'package:myboss_mobile/features/survey/presentation/cubit/dynamic_survey_cubit.dart';
@@ -63,9 +67,8 @@ import 'package:myboss_mobile/features/user/domain/usecases/update_profile_useca
 final getIt = GetIt.instance;
 
 Future<void> configureDependencies() async {
-  // Config — web and native use direct microservice ports (API_HOST or browser host).
+  // Single API on :3001 (API_HOST / API_PORT). DEMO_MODE + native probes API_HOSTS.
   if (const bool.fromEnvironment('DEMO_MODE', defaultValue: false) && !kIsWeb) {
-    // Demo APK: probe LAN hosts at startup.
     getIt.registerSingleton<EnvConfig>(await resolveDemoEnvConfig());
   } else {
     getIt.registerSingleton<EnvConfig>(EnvConfig.fromEnvironment());
@@ -78,7 +81,9 @@ Future<void> configureDependencies() async {
     const Duration(seconds: 15),
     onTimeout: () {},
   );
-  getIt.registerLazySingleton<SessionManager>(() => SessionManager());
+  getIt.registerLazySingleton<SessionOfflineStore>(() => SessionOfflineStore());
+  getIt.registerLazySingleton<SessionManager>(() => SessionManager(getIt<SessionOfflineStore>()));
+  await getIt<SessionManager>().restore();
   getIt.registerLazySingleton<LocaleCubit>(() => LocaleCubit(getIt<SecureStorageService>()));
   await getIt<LocaleCubit>().loadSavedLocale().timeout(
     const Duration(seconds: 5),
@@ -113,7 +118,9 @@ Future<void> configureDependencies() async {
 
   // User — Data
   getIt.registerLazySingleton<UserRemoteDataSource>(() => UserRemoteDataSourceImpl(getIt<DioClient>()));
-  getIt.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(getIt<UserRemoteDataSource>()));
+  getIt.registerLazySingleton<UserRepository>(
+    () => UserRepositoryImpl(getIt<UserRemoteDataSource>(), getIt<SessionOfflineStore>()),
+  );
   getIt.registerLazySingleton<NotificationUnreadTracker>(() => NotificationUnreadTracker());
   getIt.registerLazySingleton<PushRegistrationService>(
     () => PushRegistrationService(getIt<UserRepository>(), getIt<SecureStorageService>()),
@@ -139,7 +146,9 @@ Future<void> configureDependencies() async {
 
   // Squad — Data / Domain
   getIt.registerLazySingleton<SquadRemoteDataSource>(() => SquadRemoteDataSourceImpl(getIt<DioClient>()));
-  getIt.registerLazySingleton<SquadRepository>(() => SquadRepositoryImpl(getIt<SquadRemoteDataSource>()));
+  getIt.registerLazySingleton<SquadRepository>(
+    () => SquadRepositoryImpl(getIt<SquadRemoteDataSource>(), getIt<SessionOfflineStore>()),
+  );
   getIt.registerLazySingleton(() => GetSquadStatsUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => ListSquadsUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => CreateSquadUseCase(getIt<SquadRepository>()));
@@ -148,6 +157,10 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => GetJoinStatusUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => GetSquadUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => RespondToJoinRequestUseCase(getIt<SquadRepository>()));
+  getIt.registerLazySingleton(() => ListSuggestedMembersUseCase(getIt<SquadRepository>()));
+  getIt.registerLazySingleton(() => InviteMemberUseCase(getIt<SquadRepository>()));
+  getIt.registerLazySingleton(() => CancelInviteUseCase(getIt<SquadRepository>()));
+  getIt.registerLazySingleton(() => RespondToInviteUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => LeaveSquadUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => TransferLeadershipUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => RemoveSquadMemberUseCase(getIt<SquadRepository>()));
@@ -160,33 +173,58 @@ Future<void> configureDependencies() async {
   );
 
   // Squad — Presentation
-  getIt.registerFactory(() => SquadHubCubit(getIt<GetSquadStatsUseCase>(), getIt<GetJoinStatusUseCase>()));
+  getIt.registerFactory(() => SquadHubCubit(
+        getIt<GetSquadStatsUseCase>(),
+        getIt<GetJoinStatusUseCase>(),
+        getIt<RespondToInviteUseCase>(),
+        getIt<GetEmployeeSettingsUseCase>(),
+      ));
   getIt.registerFactory(() => CreateSquadCubit(getIt<CreateSquadUseCase>()));
   getIt.registerFactory(() => JoinSquadCubit(
         getIt<ListSquadsUseCase>(),
         getIt<JoinSquadUseCase>(),
         getIt<GetJoinStatusUseCase>(),
+        getIt<GetEmployeeSettingsUseCase>(),
       ));
   getIt.registerFactory(() => MySquadCubit(
         getIt<ResolveUserSquadUseCase>(),
         getIt<GetJoinStatusUseCase>(),
         getIt<RespondToJoinRequestUseCase>(),
+        getIt<ListSuggestedMembersUseCase>(),
+        getIt<InviteMemberUseCase>(),
+        getIt<CancelInviteUseCase>(),
+        getIt<RespondToInviteUseCase>(),
         getIt<LeaveSquadUseCase>(),
         getIt<TransferLeadershipUseCase>(),
         getIt<RemoveSquadMemberUseCase>(),
+        getIt<GetEmployeeSettingsUseCase>(),
       ));
 
   // Survey — Data / Domain
   getIt.registerLazySingleton<SurveyRemoteDataSource>(() => SurveyRemoteDataSourceImpl(getIt<DioClient>()));
-  getIt.registerLazySingleton<SurveyRepository>(() => SurveyRepositoryImpl(getIt<SurveyRemoteDataSource>()));
+  getIt.registerLazySingleton(() => SurveySchemaCache());
+  getIt.registerLazySingleton<SurveyRepository>(
+    () => SurveyRepositoryImpl(getIt<SurveyRemoteDataSource>(), getIt<SurveySchemaCache>()),
+  );
+  getIt.registerLazySingleton(() => SurveyDraftStore());
   getIt.registerLazySingleton(() => ListSurveysUseCase(getIt<SurveyRepository>()));
   getIt.registerLazySingleton(() => GetActiveSurveyUseCase(getIt<SurveyRepository>()));
   getIt.registerLazySingleton(() => SubmitSurveyResponseUseCase(getIt<SurveyRepository>()));
   getIt.registerLazySingleton(() => GetSquadProgressUseCase(getIt<SurveyRepository>()));
   getIt.registerLazySingleton(() => GetSurveyReportUseCase(getIt<SurveyRepository>()));
+  getIt.registerLazySingleton(
+    () => SurveyOfflineSync(getIt<SurveyDraftStore>(), getIt<SubmitSurveyResponseUseCase>()),
+  );
 
   // Survey — Presentation
-  getIt.registerFactory(() => DynamicSurveyCubit(getIt<GetActiveSurveyUseCase>(), getIt<SubmitSurveyResponseUseCase>()));
+  getIt.registerFactory(
+    () => DynamicSurveyCubit(
+      getIt<GetActiveSurveyUseCase>(),
+      getIt<SubmitSurveyResponseUseCase>(),
+      getIt<SurveyDraftStore>(),
+      getIt<SurveySchemaCache>(),
+    ),
+  );
   getIt.registerFactory(() => ReportsCubit(getIt<GetSurveyReportUseCase>()));
 
   // Gallery — Data / Domain / Presentation
@@ -225,6 +263,7 @@ Future<void> configureDependencies() async {
       getIt<ListSurveysUseCase>(),
       getIt<GetNotificationsForUserUseCase>(),
       getIt<NotificationUnreadTracker>(),
+      getIt<SurveySchemaCache>(),
     ),
   );
 

@@ -43,30 +43,31 @@ class EnvConfig {
   static EnvConfig fromEnvironment() {
     const envString = String.fromEnvironment('ENV', defaultValue: 'development');
 
-    // All environments use direct microservice ports on API_HOST (or dev defaults).
     final host = resolveDevApiHost();
     logDevApiHostIfDebug(host);
 
     switch (envString) {
       case 'demo':
-        return _directPorts(host, AppEnvironment.demo);
+        return _singleApi(host, AppEnvironment.demo);
       case 'uat':
-        return _directPorts(host, AppEnvironment.uat);
+        return _singleApi(host, AppEnvironment.uat);
       case 'production':
-        return _directPorts(host, AppEnvironment.production);
+        return _singleApi(host, AppEnvironment.production);
       default:
-        return _directPorts(host, AppEnvironment.development);
+        return _singleApi(host, AppEnvironment.development);
     }
   }
 
-  static EnvConfig _directPorts(String host, AppEnvironment env) {
+  static EnvConfig _singleApi(String host, AppEnvironment env) {
+    const port = int.fromEnvironment('API_PORT', defaultValue: 3001);
+    final base = 'http://$host:$port/api/v1';
     return EnvConfig._(
       environment: env,
-      authBaseUrl: 'http://$host:3001/api/v1',
-      userBaseUrl: 'http://$host:3002/api/v1',
-      configBaseUrl: 'http://$host:3003/api/v1',
-      squadBaseUrl: 'http://$host:3004/api/v1',
-      surveyBaseUrl: 'http://$host:3005/api/v1',
+      authBaseUrl: base,
+      userBaseUrl: base,
+      configBaseUrl: base,
+      squadBaseUrl: base,
+      surveyBaseUrl: base,
     );
   }
 }

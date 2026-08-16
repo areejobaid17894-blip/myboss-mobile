@@ -134,6 +134,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Admin announcements and squad alerts will appear here.';
 
   @override
+  String homeNewNotifications(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You have $count new notifications',
+      one: 'You have 1 new notification',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String notificationsUnreadSummary(int count) {
     return '$count unread';
   }
@@ -181,6 +192,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get surveyProgress => 'Survey progress';
 
   @override
+  String surveyTargetSmashed(int completed, int target) {
+    return 'Target smashed — $completed/$target!';
+  }
+
+  @override
+  String get surveyTargetReachedHint =>
+      'Extra surveys still count toward your rank.';
+
+  @override
   String get governorateInsights => 'Governorate insights';
 
   @override
@@ -208,11 +228,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vestSize => 'Vest size';
 
   @override
-  String get openToTravel => 'Open to travel';
+  String get openToTravel => 'I\'m open to visits outside my governorate';
+
+  @override
+  String get surveyTemplateConsumerTitle => 'Customer visit survey';
+
+  @override
+  String get surveyTemplateConsumerDesc =>
+      'Feedback survey for consumer segment';
+
+  @override
+  String get surveyTemplateEmployeeTitle => 'Employee feedback loop';
+
+  @override
+  String get surveyTemplateEmployeeDesc =>
+      'Post-event employee experience survey';
+
+  @override
+  String get surveyTemplateBusinessTitle => 'Business Customer Survey';
+
+  @override
+  String get surveyTemplateBusinessDesc =>
+      'Feedback survey for business segment customers';
+
+  @override
+  String get cancelInvite => 'Cancel invitation';
+
+  @override
+  String get inviteCancelled =>
+      'Invitation cancelled. The seat is available again.';
 
   @override
   String get openToTravelDesc =>
-      'Willing to be assigned outside your governorate';
+      'Optional. Helps us cover remote areas — transport is NOT arranged by the company.';
 
   @override
   String get saveChanges => 'Save changes';
@@ -341,7 +389,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createSquadNameDesc =>
-      'Make it memorable — it shows up on the leaderboard for the whole company.';
+      'Make it memorable — it shows up on the leaderboard for the whole company. Letters and spaces only (max 100 characters).';
 
   @override
   String get squadNameHint => 'e.g. Desert Falcons';
@@ -422,9 +470,164 @@ class AppLocalizationsEn extends AppLocalizations {
   String get full => 'Full';
 
   @override
-  String members(int count) {
-    return 'Members ($count/5)';
+  String members(int count, int max) {
+    return 'Members ($count/$max)';
   }
+
+  @override
+  String inviteMember(int seats) {
+    return '＋ Invite a member ($seats seats left)';
+  }
+
+  @override
+  String get inviteMemberOne => '＋ Invite a member (1 seat left)';
+
+  @override
+  String get inviteMemberFull => '＋ Invite a member (0 seats left)';
+
+  @override
+  String get inviteCopied => 'Invite copied — share it with a colleague!';
+
+  @override
+  String inviteShareMessage(String name, String code) {
+    return 'Join my squad \"$name\"! Open Join a squad and search for code $code.';
+  }
+
+  @override
+  String squadFullNoSeats(int count, int max) {
+    return 'This squad is full ($count/$max) — 0 seats left.';
+  }
+
+  @override
+  String get suggestedMembersTitle => 'Invite a member';
+
+  @override
+  String get suggestedMembersEmpty => 'No matching colleagues.';
+
+  @override
+  String get sendInvite => 'Invite';
+
+  @override
+  String get inviteSent => 'Invitation sent';
+
+  @override
+  String get invitedLabel => 'Invited';
+
+  @override
+  String pendingInvites(int count) {
+    return 'Pending invitations ($count)';
+  }
+
+  @override
+  String get noPendingInvites => 'No pending invitations';
+
+  @override
+  String get myInvitationsTitle => 'My invitations';
+
+  @override
+  String get myInvitationsSub =>
+      'Invitations you sent · no expiry · each holds a slot until answered';
+
+  @override
+  String get openSlotInvite => 'Open slot — invite a colleague';
+
+  @override
+  String get heldSlotPending => 'Held — invitation pending a reply';
+
+  @override
+  String get inviteDisabledFull =>
+      'Your squad is full — invitations are disabled.';
+
+  @override
+  String get inviteDisabledPendingHold =>
+      'Every open slot is held by a pending invitation. Cancel one to invite someone else.';
+
+  @override
+  String inviteSheetSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count slots left',
+      one: '1 slot left',
+      zero: '0 slots left',
+    );
+    return '$_temp0 · invitations don\'t expire · joining is always their choice';
+  }
+
+  @override
+  String get searchNameOrEmail => 'Search name or email…';
+
+  @override
+  String get badgeNoSquad => 'No squad';
+
+  @override
+  String badgeInSquad(String squad) {
+    return 'In $squad';
+  }
+
+  @override
+  String get badgeUnregistered => 'Unregistered';
+
+  @override
+  String get inviteOtherSquadHint =>
+      'Colleagues already in another squad can accept only after leaving their current squad.';
+
+  @override
+  String inviteSlotsHeldHint(int cap) {
+    return 'Each pending invitation holds a slot, so your squad can never go over $cap.';
+  }
+
+  @override
+  String get inviteNoSeatsHint =>
+      'You\'ve invited enough people to fill every open slot. Cancel a pending invitation to invite someone else.';
+
+  @override
+  String get inviteWhyPending => 'Invitation already pending';
+
+  @override
+  String get inviteWhyUnregistered => 'Not registered in the Boss app yet';
+
+  @override
+  String get inviteWhyNoSeats =>
+      'All open slots are held by pending invitations';
+
+  @override
+  String get pendingInviteTitle => 'Squad invitation';
+
+  @override
+  String pendingInviteBody(String squadName) {
+    return 'You\'ve been invited to join \"$squadName\". Accept to join, or reject to decline.';
+  }
+
+  @override
+  String get acceptInvite => 'Accept invitation';
+
+  @override
+  String get rejectInvite => 'Reject';
+
+  @override
+  String get inviteAccepted => 'You\'re in the squad!';
+
+  @override
+  String get inviteRejected => 'Invitation declined';
+
+  @override
+  String get sameGovernorate => 'Same governorate';
+
+  @override
+  String remainingInviteSeats(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count invitation seats left',
+      one: '1 invitation seat left',
+      zero: 'No invitation seats left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareSquadCode => 'Share squad code';
 
   @override
   String get leader => 'Leader';
@@ -614,6 +817,33 @@ class AppLocalizationsEn extends AppLocalizations {
       'The survey response has been submitted successfully.';
 
   @override
+  String get surveyCloseConfirmTitle => 'Leave this survey?';
+
+  @override
+  String get surveyCloseConfirmMessage =>
+      'Your answers are saved as a draft on this device. Are you sure you want to leave?';
+
+  @override
+  String get surveyFinishConfirmTitle => 'Submit survey?';
+
+  @override
+  String get surveyFinishConfirmMessage =>
+      'Please confirm you want to finish and submit your answers. You can still go back and review before submitting.';
+
+  @override
+  String get surveyStay => 'Keep answering';
+
+  @override
+  String get surveyLeave => 'Leave';
+
+  @override
+  String get surveyOfflineSavedTitle => 'Saved offline';
+
+  @override
+  String get surveyOfflineSavedBody =>
+      'No internet connection. Your survey was saved as a draft and will be submitted automatically when you are back online.';
+
+  @override
   String get errorGeneric => 'Something went wrong. Please try again.';
 
   @override
@@ -634,10 +864,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some fields are invalid. Please review your input.';
 
   @override
-  String get errorInvalidNationalId => 'Invalid national ID.';
+  String get errorInvalidNationalId =>
+      'Enter a valid 10-digit national ID starting with 99.';
 
   @override
-  String get errorInvalidPhone => 'Invalid phone number.';
+  String get errorInvalidPhone =>
+      'Enter a valid Jordanian mobile number (e.g. +962 77 XXX XXXX).';
+
+  @override
+  String get errorConsentNameRequired => 'Please enter the customer name.';
+
+  @override
+  String get errorConsentSignatureRequired =>
+      'Please add the customer signature.';
 
   @override
   String get errorNotEligible => 'You are not eligible to participate.';
@@ -677,7 +916,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Maximum squad limit reached. Please join an existing squad.';
 
   @override
-  String get errorSquadNameTaken => 'Squad name is already taken.';
+  String get errorSquadNameTaken =>
+      'Squad name already exists. Please choose a different name.';
+
+  @override
+  String get errorSquadNameEmpty => 'Please enter a squad name.';
+
+  @override
+  String get errorSquadNameTooShort => 'Squad name must be at least 2 letters.';
+
+  @override
+  String get errorSquadNameTooLong =>
+      'Squad name must be 100 characters or fewer.';
+
+  @override
+  String get errorSquadNameInvalid =>
+      'Use letters and spaces only — no numbers, emojis, or special characters.';
 
   @override
   String get errorSquadAlreadyMember => 'You are already in a squad.';
@@ -686,7 +940,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorSquadFull => 'This squad is full.';
 
   @override
-  String get errorSquadJoinRequestExists => 'Join request already sent.';
+  String get errorSquadJoinClosed =>
+      'Squad joining is closed. Please check with the admin to join a squad.';
+
+  @override
+  String squadJoinClosesAfter(String date) {
+    return 'Employee squad joining and creation will stop after $date. After that date, check with the admin to join a squad.';
+  }
+
+  @override
+  String squadJoinClosedContactAdmin(String email) {
+    return 'Squad joining from the employee app is closed. Please check with the admin to join a squad: $email';
+  }
+
+  @override
+  String get adminEmailCopied => 'Admin email copied';
+
+  @override
+  String get errorSquadJoinRequestExists =>
+      'A pending squad request or invitation already exists.';
 
   @override
   String get errorSquadJoinRequestNotFound => 'Join request not found.';
@@ -928,7 +1200,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get noSquadUnlockTitle => 'Join a squad to unlock';
+  String get noSquadUnlockTitle => 'Create or join a squad to unlock';
 
   @override
   String get noSquadUnlockDesc =>

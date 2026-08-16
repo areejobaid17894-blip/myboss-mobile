@@ -40,6 +40,24 @@ abstract class SquadRepository {
     required bool accept,
   });
 
+  Future<({Failure? failure, SuggestedSquadMembers? suggestions})> listSuggestedMembers(String squadId);
+
+  Future<({Failure? failure, SquadJoinRequest? request})> inviteMember({
+    required String squadId,
+    required String userId,
+  });
+
+  Future<({Failure? failure, Squad? squad})> respondToInvite({
+    required String squadId,
+    required String requestId,
+    required bool accept,
+  });
+
+  Future<({Failure? failure, Squad? squad})> cancelInvite({
+    required String squadId,
+    required String requestId,
+  });
+
   Future<({Failure? failure, Squad? squad})> leaveSquad({
     required String squadId,
     required String userId,

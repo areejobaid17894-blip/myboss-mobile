@@ -101,7 +101,9 @@ final _appRoutes = <RouteBase>[
     ),
     GoRoute(
       path: '/squad/join',
-      builder: (context, state) => const JoinSquadPage(),
+      builder: (context, state) => JoinSquadPage(
+        initialCode: state.uri.queryParameters['code'],
+      ),
     ),
     GoRoute(
       path: '/squad/success',

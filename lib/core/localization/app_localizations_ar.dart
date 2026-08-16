@@ -134,6 +134,11 @@ class AppLocalizationsAr extends AppLocalizations {
       'ستظهر هنا إعلانات الإدارة وتنبيهات الفريق.';
 
   @override
+  String homeNewNotifications(int count) {
+    return 'لديك $count إشعارات جديدة';
+  }
+
+  @override
   String notificationsUnreadSummary(int count) {
     return '$count غير مقروء';
   }
@@ -180,6 +185,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get surveyProgress => 'تقدم الاستبيان';
 
   @override
+  String surveyTargetSmashed(int completed, int target) {
+    return 'تم تحطيم الهدف — $completed/$target!';
+  }
+
+  @override
+  String get surveyTargetReachedHint =>
+      'الاستبيانات الإضافية ما زالت تُحسب في ترتيبك.';
+
+  @override
   String get governorateInsights => 'رؤى المحافظة';
 
   @override
@@ -207,10 +221,38 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vestSize => 'مقاس السترة';
 
   @override
-  String get openToTravel => 'متاح للتنقل';
+  String get openToTravel => 'الرغبة في التنقل';
 
   @override
-  String get openToTravelDesc => 'مستعد للعمل خارج محافظتك';
+  String get surveyTemplateConsumerTitle => 'استبيان زيارة العملاء';
+
+  @override
+  String get surveyTemplateConsumerDesc =>
+      'استبيان لقياس آراء العملاء من شريحة المستهلكين';
+
+  @override
+  String get surveyTemplateEmployeeTitle => 'استطلاع آراء الموظفين';
+
+  @override
+  String get surveyTemplateEmployeeDesc =>
+      'استبيان تجربة الموظفين بعد الفعالية';
+
+  @override
+  String get surveyTemplateBusinessTitle => 'استبيان عملاء قطاع الأعمال';
+
+  @override
+  String get surveyTemplateBusinessDesc =>
+      'استبيان لقياس آراء عملاء قطاع الأعمال';
+
+  @override
+  String get cancelInvite => 'إلغاء الدعوة';
+
+  @override
+  String get inviteCancelled => 'تم إلغاء الدعوة. المقعد متاح مرة أخرى.';
+
+  @override
+  String get openToTravelDesc =>
+      'اختياري. يساعدنا على تغطية المناطق البعيدة — الشركة لا ترتب المواصلات.';
 
   @override
   String get saveChanges => 'حفظ التغييرات';
@@ -339,7 +381,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get createSquadNameDesc =>
-      'اختر اسماً مميزاً — يظهر في لوحة المتصدرين للشركة.';
+      'اختر اسماً مميزاً — يظهر في لوحة المتصدرين للشركة. أحرف ومسافات فقط (بحد أقصى 100 حرف).';
 
   @override
   String get squadNameHint => 'مثال: صقور الصحراء';
@@ -419,9 +461,162 @@ class AppLocalizationsAr extends AppLocalizations {
   String get full => 'مكتمل';
 
   @override
-  String members(int count) {
-    return 'الأعضاء ($count/5)';
+  String members(int count, int max) {
+    return 'الأعضاء ($count/$max)';
   }
+
+  @override
+  String inviteMember(int seats) {
+    return '＋ دعوة عضو ($seats مقاعد متبقية)';
+  }
+
+  @override
+  String get inviteMemberOne => '＋ دعوة عضو (مقعد واحد متبقٍ)';
+
+  @override
+  String get inviteMemberFull => '＋ دعوة عضو (0 مقاعد متبقية)';
+
+  @override
+  String get inviteCopied => 'تم نسخ الدعوة — شاركها مع زميل!';
+
+  @override
+  String inviteShareMessage(String name, String code) {
+    return 'انضم لفريقي \"$name\"! افتح انضم لفريق وابحث عن الرمز $code.';
+  }
+
+  @override
+  String squadFullNoSeats(int count, int max) {
+    return 'هذا الفريق مكتمل ($count/$max) — لا مقاعد متبقية.';
+  }
+
+  @override
+  String get suggestedMembersTitle => 'دعوة عضو';
+
+  @override
+  String get suggestedMembersEmpty => 'لا يوجد زملاء مطابقون.';
+
+  @override
+  String get sendInvite => 'دعوة';
+
+  @override
+  String get inviteSent => 'تم إرسال الدعوة';
+
+  @override
+  String get invitedLabel => 'مدعو';
+
+  @override
+  String pendingInvites(int count) {
+    return 'دعوات قيد الانتظار ($count)';
+  }
+
+  @override
+  String get noPendingInvites => 'لا توجد دعوات معلقة';
+
+  @override
+  String get myInvitationsTitle => 'دعواتي';
+
+  @override
+  String get myInvitationsSub =>
+      'الدعوات التي أرسلتها · بلا انتهاء · كل دعوة تحجز مقعداً حتى الرد';
+
+  @override
+  String get openSlotInvite => 'مقعد شاغر — ادعُ زميلاً';
+
+  @override
+  String get heldSlotPending => 'محجوز — دعوة بانتظار الرد';
+
+  @override
+  String get inviteDisabledFull => 'فريقك مكتمل — الدعوات معطّلة.';
+
+  @override
+  String get inviteDisabledPendingHold =>
+      'كل المقاعد الشاغرة محجوزة بدعوات معلّقة. ألغِ واحدة لدعوة شخص آخر.';
+
+  @override
+  String inviteSheetSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مقاعد متبقية',
+      one: 'مقعد واحد متبقٍ',
+      zero: 'لا مقاعد متبقية',
+    );
+    return '$_temp0 · الدعوات لا تنتهي · الانضمام دائماً اختيارهم';
+  }
+
+  @override
+  String get searchNameOrEmail => 'ابحث بالاسم أو البريد…';
+
+  @override
+  String get badgeNoSquad => 'بلا فريق';
+
+  @override
+  String badgeInSquad(String squad) {
+    return 'في $squad';
+  }
+
+  @override
+  String get badgeUnregistered => 'غير مسجّل';
+
+  @override
+  String get inviteOtherSquadHint =>
+      'يمكن للزملاء في فريق آخر القبول فقط بعد مغادرة فريقهم الحالي.';
+
+  @override
+  String inviteSlotsHeldHint(int cap) {
+    return 'كل دعوة معلّقة تحجز مقعداً، لذلك لا يمكن أن يتجاوز فريقك $cap.';
+  }
+
+  @override
+  String get inviteNoSeatsHint =>
+      'لقد دعوت عدداً يكفي لملء كل المقاعد. ألغِ دعوة معلّقة لدعوة شخص آخر.';
+
+  @override
+  String get inviteWhyPending => 'الدعوة معلّقة بالفعل';
+
+  @override
+  String get inviteWhyUnregistered => 'غير مسجّل في تطبيق Boss بعد';
+
+  @override
+  String get inviteWhyNoSeats => 'كل المقاعد الشاغرة محجوزة بدعوات معلّقة';
+
+  @override
+  String get pendingInviteTitle => 'دعوة للفريق';
+
+  @override
+  String pendingInviteBody(String squadName) {
+    return 'تمت دعوتك للانضمام إلى \"$squadName\". اقبل للانضمام أو ارفض للتجاهل.';
+  }
+
+  @override
+  String get acceptInvite => 'قبول الدعوة';
+
+  @override
+  String get rejectInvite => 'رفض';
+
+  @override
+  String get inviteAccepted => 'أصبحت في الفريق!';
+
+  @override
+  String get inviteRejected => 'تم رفض الدعوة';
+
+  @override
+  String get sameGovernorate => 'نفس المحافظة';
+
+  @override
+  String remainingInviteSeats(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مقاعد دعوة متبقية',
+      one: 'مقعد دعوة واحد متبقٍ',
+      zero: 'لا مقاعد دعوة متبقية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareSquadCode => 'مشاركة رمز الفريق';
 
   @override
   String get leader => 'القائد';
@@ -608,6 +803,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get surveySuccessBody => 'تم إرسال إجابة الاستبيان بنجاح.';
 
   @override
+  String get surveyCloseConfirmTitle => 'مغادرة الاستبيان؟';
+
+  @override
+  String get surveyCloseConfirmMessage =>
+      'تم حفظ إجاباتك كمسودة على هذا الجهاز. هل أنت متأكد أنك تريد المغادرة؟';
+
+  @override
+  String get surveyFinishConfirmTitle => 'إرسال الاستبيان؟';
+
+  @override
+  String get surveyFinishConfirmMessage =>
+      'يرجى التأكيد أنك تريد إنهاء الاستبيان وإرسال إجاباتك. يمكنك العودة ومراجعة الإجابات قبل الإرسال.';
+
+  @override
+  String get surveyStay => 'متابعة الإجابة';
+
+  @override
+  String get surveyLeave => 'مغادرة';
+
+  @override
+  String get surveyOfflineSavedTitle => 'تم الحفظ دون اتصال';
+
+  @override
+  String get surveyOfflineSavedBody =>
+      'لا يوجد اتصال بالإنترنت. تم حفظ الاستبيان كمسودة وسيُرسل تلقائياً عند عودة الاتصال.';
+
+  @override
   String get errorGeneric => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
 
   @override
@@ -627,10 +849,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorValidation => 'بعض الحقول غير صالحة. يرجى مراجعة المدخلات.';
 
   @override
-  String get errorInvalidNationalId => 'رقم الهوية غير صالح.';
+  String get errorInvalidNationalId =>
+      'أدخل رقم هوية صالحًا من 10 أرقام يبدأ بـ 99.';
 
   @override
-  String get errorInvalidPhone => 'رقم الهاتف غير صالح.';
+  String get errorInvalidPhone =>
+      'أدخل رقم هاتف أردني صالحًا (مثل +962 77 XXX XXXX).';
+
+  @override
+  String get errorConsentNameRequired => 'يرجى إدخال اسم العميل.';
+
+  @override
+  String get errorConsentSignatureRequired => 'يرجى إضافة توقيع العميل.';
 
   @override
   String get errorNotEligible => 'أنت غير مؤهل للمشاركة.';
@@ -670,7 +900,22 @@ class AppLocalizationsAr extends AppLocalizations {
       'تم الوصول إلى الحد الأقصى للفرق. يرجى الانضمام إلى فريق موجود.';
 
   @override
-  String get errorSquadNameTaken => 'اسم الفريق مستخدم بالفعل.';
+  String get errorSquadNameTaken =>
+      'اسم الفريق موجود بالفعل. يرجى اختيار اسم آخر';
+
+  @override
+  String get errorSquadNameEmpty => 'يرجى إدخال اسم الفريق.';
+
+  @override
+  String get errorSquadNameTooShort =>
+      'يجب أن يكون اسم الفريق حرفين على الأقل.';
+
+  @override
+  String get errorSquadNameTooLong => 'يجب ألا يتجاوز اسم الفريق 100 حرف.';
+
+  @override
+  String get errorSquadNameInvalid =>
+      'استخدم الأحرف والمسافات فقط — بدون أرقام أو رموز أو إيموجي.';
 
   @override
   String get errorSquadAlreadyMember => 'أنت بالفعل في فريق.';
@@ -679,7 +924,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorSquadFull => 'هذا الفريق مكتمل.';
 
   @override
-  String get errorSquadJoinRequestExists => 'تم إرسال طلب الانضمام مسبقاً.';
+  String get errorSquadJoinClosed =>
+      'تم إغلاق الانضمام للفرق. يرجى التواصل مع المسؤول للانضمام إلى فريق.';
+
+  @override
+  String squadJoinClosesAfter(String date) {
+    return 'سيتوقف إنشاء الفرق والانضمام إليها من تطبيق الموظف بعد $date. بعد هذا التاريخ، تواصل مع المسؤول للانضمام إلى فريق.';
+  }
+
+  @override
+  String squadJoinClosedContactAdmin(String email) {
+    return 'تم إغلاق الانضمام للفرق من تطبيق الموظف. يرجى التواصل مع المسؤول للانضمام إلى فريق: $email';
+  }
+
+  @override
+  String get adminEmailCopied => 'تم نسخ بريد المسؤول';
+
+  @override
+  String get errorSquadJoinRequestExists =>
+      'يوجد بالفعل طلب انضمام أو دعوة معلقة.';
 
   @override
   String get errorSquadJoinRequestNotFound => 'طلب الانضمام غير موجود.';
@@ -919,7 +1182,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get noSquadUnlockTitle => 'انضم لفريق للفتح';
+  String get noSquadUnlockTitle => 'أنشئ أو انضم لفريق للفتح';
 
   @override
   String get noSquadUnlockDesc =>

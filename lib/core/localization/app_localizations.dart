@@ -326,6 +326,12 @@ abstract class AppLocalizations {
   /// **'Admin announcements and squad alerts will appear here.'**
   String get notificationsEmptyBody;
 
+  /// No description provided for @homeNewNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You have 1 new notification} other{You have {count} new notifications}}'**
+  String homeNewNotifications(int count);
+
   /// No description provided for @notificationsUnreadSummary.
   ///
   /// In en, this message translates to:
@@ -404,6 +410,18 @@ abstract class AppLocalizations {
   /// **'Survey progress'**
   String get surveyProgress;
 
+  /// No description provided for @surveyTargetSmashed.
+  ///
+  /// In en, this message translates to:
+  /// **'Target smashed — {completed}/{target}!'**
+  String surveyTargetSmashed(int completed, int target);
+
+  /// No description provided for @surveyTargetReachedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra surveys still count toward your rank.'**
+  String get surveyTargetReachedHint;
+
   /// No description provided for @governorateInsights.
   ///
   /// In en, this message translates to:
@@ -461,13 +479,61 @@ abstract class AppLocalizations {
   /// No description provided for @openToTravel.
   ///
   /// In en, this message translates to:
-  /// **'Open to travel'**
+  /// **'I\'m open to visits outside my governorate'**
   String get openToTravel;
+
+  /// No description provided for @surveyTemplateConsumerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer visit survey'**
+  String get surveyTemplateConsumerTitle;
+
+  /// No description provided for @surveyTemplateConsumerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback survey for consumer segment'**
+  String get surveyTemplateConsumerDesc;
+
+  /// No description provided for @surveyTemplateEmployeeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee feedback loop'**
+  String get surveyTemplateEmployeeTitle;
+
+  /// No description provided for @surveyTemplateEmployeeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Post-event employee experience survey'**
+  String get surveyTemplateEmployeeDesc;
+
+  /// No description provided for @surveyTemplateBusinessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Business Customer Survey'**
+  String get surveyTemplateBusinessTitle;
+
+  /// No description provided for @surveyTemplateBusinessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback survey for business segment customers'**
+  String get surveyTemplateBusinessDesc;
+
+  /// No description provided for @cancelInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel invitation'**
+  String get cancelInvite;
+
+  /// No description provided for @inviteCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation cancelled. The seat is available again.'**
+  String get inviteCancelled;
 
   /// No description provided for @openToTravelDesc.
   ///
   /// In en, this message translates to:
-  /// **'Willing to be assigned outside your governorate'**
+  /// **'Optional. Helps us cover remote areas — transport is NOT arranged by the company.'**
   String get openToTravelDesc;
 
   /// No description provided for @saveChanges.
@@ -701,7 +767,7 @@ abstract class AppLocalizations {
   /// No description provided for @createSquadNameDesc.
   ///
   /// In en, this message translates to:
-  /// **'Make it memorable — it shows up on the leaderboard for the whole company.'**
+  /// **'Make it memorable — it shows up on the leaderboard for the whole company. Letters and spaces only (max 100 characters).'**
   String get createSquadNameDesc;
 
   /// No description provided for @squadNameHint.
@@ -833,8 +899,242 @@ abstract class AppLocalizations {
   /// No description provided for @members.
   ///
   /// In en, this message translates to:
-  /// **'Members ({count}/5)'**
-  String members(int count);
+  /// **'Members ({count}/{max})'**
+  String members(int count, int max);
+
+  /// No description provided for @inviteMember.
+  ///
+  /// In en, this message translates to:
+  /// **'＋ Invite a member ({seats} seats left)'**
+  String inviteMember(int seats);
+
+  /// No description provided for @inviteMemberOne.
+  ///
+  /// In en, this message translates to:
+  /// **'＋ Invite a member (1 seat left)'**
+  String get inviteMemberOne;
+
+  /// No description provided for @inviteMemberFull.
+  ///
+  /// In en, this message translates to:
+  /// **'＋ Invite a member (0 seats left)'**
+  String get inviteMemberFull;
+
+  /// No description provided for @inviteCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite copied — share it with a colleague!'**
+  String get inviteCopied;
+
+  /// No description provided for @inviteShareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Join my squad \"{name}\"! Open Join a squad and search for code {code}.'**
+  String inviteShareMessage(String name, String code);
+
+  /// No description provided for @squadFullNoSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'This squad is full ({count}/{max}) — 0 seats left.'**
+  String squadFullNoSeats(int count, int max);
+
+  /// No description provided for @suggestedMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite a member'**
+  String get suggestedMembersTitle;
+
+  /// No description provided for @suggestedMembersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching colleagues.'**
+  String get suggestedMembersEmpty;
+
+  /// No description provided for @sendInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get sendInvite;
+
+  /// No description provided for @inviteSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation sent'**
+  String get inviteSent;
+
+  /// No description provided for @invitedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get invitedLabel;
+
+  /// No description provided for @pendingInvites.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending invitations ({count})'**
+  String pendingInvites(int count);
+
+  /// No description provided for @noPendingInvites.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending invitations'**
+  String get noPendingInvites;
+
+  /// No description provided for @myInvitationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My invitations'**
+  String get myInvitationsTitle;
+
+  /// No description provided for @myInvitationsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitations you sent · no expiry · each holds a slot until answered'**
+  String get myInvitationsSub;
+
+  /// No description provided for @openSlotInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Open slot — invite a colleague'**
+  String get openSlotInvite;
+
+  /// No description provided for @heldSlotPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Held — invitation pending a reply'**
+  String get heldSlotPending;
+
+  /// No description provided for @inviteDisabledFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Your squad is full — invitations are disabled.'**
+  String get inviteDisabledFull;
+
+  /// No description provided for @inviteDisabledPendingHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Every open slot is held by a pending invitation. Cancel one to invite someone else.'**
+  String get inviteDisabledPendingHold;
+
+  /// No description provided for @inviteSheetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 slots left} =1{1 slot left} other{{count} slots left}} · invitations don\'t expire · joining is always their choice'**
+  String inviteSheetSubtitle(int count);
+
+  /// No description provided for @searchNameOrEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name or email…'**
+  String get searchNameOrEmail;
+
+  /// No description provided for @badgeNoSquad.
+  ///
+  /// In en, this message translates to:
+  /// **'No squad'**
+  String get badgeNoSquad;
+
+  /// No description provided for @badgeInSquad.
+  ///
+  /// In en, this message translates to:
+  /// **'In {squad}'**
+  String badgeInSquad(String squad);
+
+  /// No description provided for @badgeUnregistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Unregistered'**
+  String get badgeUnregistered;
+
+  /// No description provided for @inviteOtherSquadHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Colleagues already in another squad can accept only after leaving their current squad.'**
+  String get inviteOtherSquadHint;
+
+  /// No description provided for @inviteSlotsHeldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each pending invitation holds a slot, so your squad can never go over {cap}.'**
+  String inviteSlotsHeldHint(int cap);
+
+  /// No description provided for @inviteNoSeatsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve invited enough people to fill every open slot. Cancel a pending invitation to invite someone else.'**
+  String get inviteNoSeatsHint;
+
+  /// No description provided for @inviteWhyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation already pending'**
+  String get inviteWhyPending;
+
+  /// No description provided for @inviteWhyUnregistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Not registered in the Boss app yet'**
+  String get inviteWhyUnregistered;
+
+  /// No description provided for @inviteWhyNoSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'All open slots are held by pending invitations'**
+  String get inviteWhyNoSeats;
+
+  /// No description provided for @pendingInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Squad invitation'**
+  String get pendingInviteTitle;
+
+  /// No description provided for @pendingInviteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve been invited to join \"{squadName}\". Accept to join, or reject to decline.'**
+  String pendingInviteBody(String squadName);
+
+  /// No description provided for @acceptInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept invitation'**
+  String get acceptInvite;
+
+  /// No description provided for @rejectInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectInvite;
+
+  /// No description provided for @inviteAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re in the squad!'**
+  String get inviteAccepted;
+
+  /// No description provided for @inviteRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation declined'**
+  String get inviteRejected;
+
+  /// No description provided for @sameGovernorate.
+  ///
+  /// In en, this message translates to:
+  /// **'Same governorate'**
+  String get sameGovernorate;
+
+  /// No description provided for @remainingInviteSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No invitation seats left} =1{1 invitation seat left} other{{count} invitation seats left}}'**
+  String remainingInviteSeats(int count);
+
+  /// No description provided for @shareSquadCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Share squad code'**
+  String get shareSquadCode;
 
   /// No description provided for @leader.
   ///
@@ -1172,6 +1472,54 @@ abstract class AppLocalizations {
   /// **'The survey response has been submitted successfully.'**
   String get surveySuccessBody;
 
+  /// No description provided for @surveyCloseConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this survey?'**
+  String get surveyCloseConfirmTitle;
+
+  /// No description provided for @surveyCloseConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers are saved as a draft on this device. Are you sure you want to leave?'**
+  String get surveyCloseConfirmMessage;
+
+  /// No description provided for @surveyFinishConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit survey?'**
+  String get surveyFinishConfirmTitle;
+
+  /// No description provided for @surveyFinishConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm you want to finish and submit your answers. You can still go back and review before submitting.'**
+  String get surveyFinishConfirmMessage;
+
+  /// No description provided for @surveyStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep answering'**
+  String get surveyStay;
+
+  /// No description provided for @surveyLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get surveyLeave;
+
+  /// No description provided for @surveyOfflineSavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved offline'**
+  String get surveyOfflineSavedTitle;
+
+  /// No description provided for @surveyOfflineSavedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Your survey was saved as a draft and will be submitted automatically when you are back online.'**
+  String get surveyOfflineSavedBody;
+
   /// No description provided for @errorGeneric.
   ///
   /// In en, this message translates to:
@@ -1211,14 +1559,26 @@ abstract class AppLocalizations {
   /// No description provided for @errorInvalidNationalId.
   ///
   /// In en, this message translates to:
-  /// **'Invalid national ID.'**
+  /// **'Enter a valid 10-digit national ID starting with 99.'**
   String get errorInvalidNationalId;
 
   /// No description provided for @errorInvalidPhone.
   ///
   /// In en, this message translates to:
-  /// **'Invalid phone number.'**
+  /// **'Enter a valid Jordanian mobile number (e.g. +962 77 XXX XXXX).'**
   String get errorInvalidPhone;
+
+  /// No description provided for @errorConsentNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the customer name.'**
+  String get errorConsentNameRequired;
+
+  /// No description provided for @errorConsentSignatureRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add the customer signature.'**
+  String get errorConsentSignatureRequired;
 
   /// No description provided for @errorNotEligible.
   ///
@@ -1289,8 +1649,32 @@ abstract class AppLocalizations {
   /// No description provided for @errorSquadNameTaken.
   ///
   /// In en, this message translates to:
-  /// **'Squad name is already taken.'**
+  /// **'Squad name already exists. Please choose a different name.'**
   String get errorSquadNameTaken;
+
+  /// No description provided for @errorSquadNameEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a squad name.'**
+  String get errorSquadNameEmpty;
+
+  /// No description provided for @errorSquadNameTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Squad name must be at least 2 letters.'**
+  String get errorSquadNameTooShort;
+
+  /// No description provided for @errorSquadNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Squad name must be 100 characters or fewer.'**
+  String get errorSquadNameTooLong;
+
+  /// No description provided for @errorSquadNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use letters and spaces only — no numbers, emojis, or special characters.'**
+  String get errorSquadNameInvalid;
 
   /// No description provided for @errorSquadAlreadyMember.
   ///
@@ -1304,10 +1688,34 @@ abstract class AppLocalizations {
   /// **'This squad is full.'**
   String get errorSquadFull;
 
+  /// No description provided for @errorSquadJoinClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Squad joining is closed. Please check with the admin to join a squad.'**
+  String get errorSquadJoinClosed;
+
+  /// No description provided for @squadJoinClosesAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee squad joining and creation will stop after {date}. After that date, check with the admin to join a squad.'**
+  String squadJoinClosesAfter(String date);
+
+  /// No description provided for @squadJoinClosedContactAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Squad joining from the employee app is closed. Please check with the admin to join a squad: {email}'**
+  String squadJoinClosedContactAdmin(String email);
+
+  /// No description provided for @adminEmailCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin email copied'**
+  String get adminEmailCopied;
+
   /// No description provided for @errorSquadJoinRequestExists.
   ///
   /// In en, this message translates to:
-  /// **'Join request already sent.'**
+  /// **'A pending squad request or invitation already exists.'**
   String get errorSquadJoinRequestExists;
 
   /// No description provided for @errorSquadJoinRequestNotFound.
@@ -1709,7 +2117,7 @@ abstract class AppLocalizations {
   /// No description provided for @noSquadUnlockTitle.
   ///
   /// In en, this message translates to:
-  /// **'Join a squad to unlock'**
+  /// **'Create or join a squad to unlock'**
   String get noSquadUnlockTitle;
 
   /// No description provided for @noSquadUnlockDesc.
