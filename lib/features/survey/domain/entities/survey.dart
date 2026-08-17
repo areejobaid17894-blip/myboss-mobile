@@ -149,24 +149,32 @@ class SquadProgress extends Equatable {
     required this.completed,
     required this.target,
     required this.percentage,
+    this.targetReached = false,
   });
 
   final String squadId;
   final int completed;
   final int target;
   final num percentage;
+  final bool targetReached;
 
   factory SquadProgress.fromJson(Map<String, dynamic> json) {
+    final completed = (json['completed'] as num?)?.toInt() ?? 0;
+    final target = (json['target'] as num?)?.toInt() ?? 50;
+    final targetReached = json['targetReached'] == true || (target > 0 && completed >= target);
     return SquadProgress(
-      squadId: json['squadId'] as String,
-      completed: json['completed'] as int? ?? 0,
-      target: json['target'] as int? ?? 50,
+      squadId: json['squadId'] as String? ?? '',
+      completed: completed,
+      target: target,
       percentage: json['percentage'] as num? ?? 0,
+      targetReached: targetReached,
     );
   }
 
+  bool get isTargetReached => targetReached || (target > 0 && completed >= target);
+
   @override
-  List<Object?> get props => [squadId, completed, target, percentage];
+  List<Object?> get props => [squadId, completed, target, percentage, targetReached];
 }
 
 class ReportPriority extends Equatable {

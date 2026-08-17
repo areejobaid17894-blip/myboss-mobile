@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "142867649793",
-    "project_id": "my-boss-app-38576",
-    "storage_bucket": "my-boss-app-38576.firebasestorage.app"
+    "project_number": "418987594217",
+    "project_id": "my-customer-my-boss",
+    "storage_bucket": "my-customer-my-boss.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:142867649793:android:3246efde837d83907cf700",
+        "mobilesdk_app_id": "1:418987594217:android:df43fb4766902c33affb78",
         "android_client_info": {
           "package_name": "com.myboss.myboss_mobile"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDhfJyAkpkunSvuGI-4awk96JkU36jfGho"
+          "current_key": "AIzaSyBrxc2Ngddxnsy0WrHLExWr8pDo0O5MvdM"
         }
       ],
       "services": {

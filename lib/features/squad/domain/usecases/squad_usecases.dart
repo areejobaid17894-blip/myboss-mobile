@@ -138,6 +138,15 @@ class CancelInviteUseCase {
   }
 }
 
+class CancelMyJoinRequestUseCase {
+  const CancelMyJoinRequestUseCase(this._repository);
+  final SquadRepository _repository;
+
+  Future<({Failure? failure, SquadJoinStatus? status})> call() {
+    return _repository.cancelMyJoinRequest();
+  }
+}
+
 class RespondToInviteUseCase {
   const RespondToInviteUseCase(this._repository);
   final SquadRepository _repository;

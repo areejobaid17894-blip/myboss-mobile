@@ -113,6 +113,7 @@ class MySquadCubit extends Cubit<MySquadState> {
     this._inviteMemberUseCase,
     this._cancelInviteUseCase,
     this._respondToInviteUseCase,
+    this._cancelMyJoinRequestUseCase,
     this._leaveSquadUseCase,
     this._transferLeadershipUseCase,
     this._removeMemberUseCase,
@@ -126,6 +127,7 @@ class MySquadCubit extends Cubit<MySquadState> {
   final InviteMemberUseCase _inviteMemberUseCase;
   final CancelInviteUseCase _cancelInviteUseCase;
   final RespondToInviteUseCase _respondToInviteUseCase;
+  final CancelMyJoinRequestUseCase _cancelMyJoinRequestUseCase;
   final LeaveSquadUseCase _leaveSquadUseCase;
   final TransferLeadershipUseCase _transferLeadershipUseCase;
   final RemoveSquadMemberUseCase _removeMemberUseCase;
@@ -285,6 +287,24 @@ class MySquadCubit extends Cubit<MySquadState> {
         clearJoinStatus: true,
       ));
     }
+    return true;
+  }
+
+  Future<bool> cancelMyJoinRequest() async {
+    if (!state.hasPendingJoinRequest || state.isPendingInvite) return false;
+    emit(state.copyWith(respondingRequestId: state.joinStatus?.requestId ?? 'cancel', clearError: true));
+    final response = await _cancelMyJoinRequestUseCase();
+    if (response.failure != null) {
+      emit(state.copyWith(clearResponding: true, error: response.failure));
+      return false;
+    }
+    emit(state.copyWith(
+      clearResponding: true,
+      clearSquad: true,
+      notInSquad: true,
+      joinStatus: response.status ??
+          const SquadJoinStatus(inSquad: false, hasPendingJoinRequest: false),
+    ));
     return true;
   }
 

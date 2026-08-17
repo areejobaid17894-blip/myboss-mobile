@@ -7,34 +7,24 @@ import 'package:myboss_mobile/core/config/env_config.dart';
 Future<EnvConfig> resolveDemoEnvConfig() async {
   final endpoints = DemoApiEndpoint.fromEnvironment();
   final probe = Dio(BaseOptions(
-    connectTimeout: const Duration(seconds: 2),
-    receiveTimeout: const Duration(seconds: 2),
+    connectTimeout: const Duration(milliseconds: 1500),
+    receiveTimeout: const Duration(milliseconds: 1500),
     validateStatus: (status) => status != null && status < 500,
   ));
 
-  final checks = await Future.wait(endpoints.map((endpoint) async {
+  for (final endpoint in endpoints) {
     try {
       final response = await probe.get<String>(endpoint.healthUrl);
       if (response.statusCode == 200) {
-        return endpoint;
+        if (kDebugMode) {
+          debugPrint('[MyBoss] Demo API reachable: ${endpoint.baseOrigin}');
+        }
+        return EnvConfig.fromDemoEndpoint(endpoint);
       }
     } catch (_) {
       if (kDebugMode) {
         debugPrint('[MyBoss] Demo API unreachable: ${endpoint.baseOrigin}');
       }
-    }
-    return null;
-  })).timeout(
-    const Duration(seconds: 3),
-    onTimeout: () => List<DemoApiEndpoint?>.filled(endpoints.length, null),
-  );
-
-  for (final endpoint in checks) {
-    if (endpoint != null) {
-      if (kDebugMode) {
-        debugPrint('[MyBoss] Demo API reachable: ${endpoint.baseOrigin}');
-      }
-      return EnvConfig.fromDemoEndpoint(endpoint);
     }
   }
 

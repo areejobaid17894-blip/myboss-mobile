@@ -21,7 +21,7 @@ Failure mapDioError(DioException e) {
   }
 
   final data = e.response?.data;
-  final code = extractDioCode(data);
+  final code = extractDioCode(data) ?? inferCodeFromMessage(data);
   final statusCode = e.response?.statusCode;
 
   if (statusCode == 404 && code == null) {
@@ -35,6 +35,17 @@ Failure mapDioError(DioException e) {
   }
   if (statusCode == 404) {
     return ServerFailure(code: code ?? 'NOT_FOUND');
+  }
+  // 409 conflicts must keep their specific codes (e.g. duplicate squad name).
+  if (statusCode == 409) {
+    return ServerFailure(code: code ?? 'SQUAD_NAME_TAKEN');
+  }
+  if (code == 'SQUAD_NAME_TAKEN' ||
+      code == 'SQUAD_ALREADY_MEMBER' ||
+      code == 'SQUAD_JOIN_REQUEST_EXISTS' ||
+      code == 'SQUAD_FULL' ||
+      code == 'SQUAD_NAME_INVALID') {
+    return ServerFailure(code: code);
   }
   if (statusCode != null && statusCode >= 400 && statusCode < 500) {
     return ValidationFailure(code: code ?? 'VALIDATION_FAILED');
@@ -67,14 +78,6 @@ String? extractDioCode(dynamic data) {
 
 String _mapConflictFromMessage(Map<String, dynamic> data) {
   final message = '${extractDioMessage(data) ?? ''} ${extractDioReason(data) ?? ''}'.toLowerCase();
-  if (message.contains('already exists') ||
-      message.contains('already taken') ||
-      message.contains('name is already') ||
-      message.contains('موجود بالفعل') ||
-      message.contains('مستخدم بالفعل') ||
-      message.contains('اسم الفريق')) {
-    return 'SQUAD_NAME_TAKEN';
-  }
   if (message.contains('already in a squad') || message.contains('بالفعل في فريق')) {
     return 'SQUAD_ALREADY_MEMBER';
   }
@@ -84,16 +87,39 @@ String _mapConflictFromMessage(Map<String, dynamic> data) {
   if (message.contains('full') || message.contains('مكتمل')) {
     return 'SQUAD_FULL';
   }
+  if (message.contains('already exists') ||
+      message.contains('already taken') ||
+      message.contains('name is already') ||
+      message.contains('موجود بالفعل') ||
+      message.contains('مستخدم بالفعل') ||
+      message.contains('اسم الفريق') ||
+      message.contains('choose a different name') ||
+      message.contains('اختيار اسم آخر')) {
+    return 'SQUAD_NAME_TAKEN';
+  }
+  // Orange 69 is shared by several conflicts; default to duplicate name (most common on create/rename).
   return 'SQUAD_NAME_TAKEN';
+}
+
+/// Last-resort inference when Orange envelope has no usable code.
+String? inferCodeFromMessage(dynamic data) {
+  if (data is! Map) return null;
+  final map = Map<String, dynamic>.from(data);
+  final message = (extractDioMessage(map) ?? '').toLowerCase();
+  if (message.isEmpty) return null;
+  if (message.contains('already exists') ||
+      message.contains('choose a different name') ||
+      message.contains('موجود بالفعل') ||
+      message.contains('اختيار اسم آخر')) {
+    return 'SQUAD_NAME_TAKEN';
+  }
+  return _mapValidationFromMessage(map);
 }
 
 String? _mapValidationFromMessage(Map<String, dynamic> data) {
   final message = (extractDioMessage(data) ?? '').toLowerCase();
   if (message.contains('squad name') ||
       message.contains('numbers or special') ||
-      message.contains('must be shorter') ||
-      message.contains('must be longer') ||
-      message.contains('should not be empty') ||
       message.contains('اسم الفريق')) {
     return 'SQUAD_NAME_INVALID';
   }

@@ -22,7 +22,7 @@ class SquadMember extends Equatable {
 
   factory SquadMember.fromJson(Map<String, dynamic> json) {
     return SquadMember(
-      userId: json['userId'] as String,
+      userId: json['userId']?.toString() ?? '',
       firstName: json['firstName'] as String? ?? '',
       lastName: json['lastName'] as String? ?? '',
       role: json['role'] as String? ?? 'member',
@@ -74,9 +74,9 @@ class SquadJoinRequest extends Equatable {
 
   factory SquadJoinRequest.fromJson(Map<String, dynamic> json) {
     return SquadJoinRequest(
-      id: json['id'] as String,
-      squadId: json['squadId'] as String,
-      userId: json['userId'] as String,
+      id: json['id']?.toString() ?? '',
+      squadId: json['squadId']?.toString() ?? '',
+      userId: json['userId']?.toString() ?? '',
       firstName: json['firstName'] as String? ?? '',
       lastName: json['lastName'] as String? ?? '',
       building: json['building'] as String?,
@@ -170,17 +170,17 @@ class Squad extends Equatable {
     final maxMembers = (json['maxMembers'] as num?)?.toInt() ?? defaultMaxMembers;
     final pendingCount = joinRequests.where((r) => r.isPending).length;
     return Squad(
-      id: json['id'] as String,
-      squadCode: json['squadCode'] as String? ?? '',
-      name: json['name'] as String,
+      id: json['id']?.toString() ?? '',
+      squadCode: json['squadCode']?.toString() ?? '',
+      name: json['name'] as String? ?? '',
       badge: json['badge'] as String? ?? '🦅',
       governorate: json['governorate'] as String? ?? '',
-      leaderId: json['leaderId'] as String,
+      leaderId: json['leaderId']?.toString() ?? '',
       members: members,
       joinRequests: joinRequests,
       destination: json['destination'] as String?,
       destinationValidated: json['destinationValidated'] as bool? ?? false,
-      surveyTarget: json['surveyTarget'] as int? ?? 50,
+      surveyTarget: (json['surveyTarget'] as num?)?.toInt() ?? 50,
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
       lockedAt: json['lockedAt'] as String?,
       maxMembers: maxMembers,

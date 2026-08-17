@@ -236,6 +236,18 @@ class SquadRepositoryImpl implements SquadRepository {
   }
 
   @override
+  Future<({Failure? failure, SquadJoinStatus? status})> cancelMyJoinRequest() async {
+    try {
+      final data = await _remoteDataSource.cancelMyJoinRequest();
+      return (failure: null, status: SquadJoinStatus.fromJson(data));
+    } on DioException catch (e) {
+      return (failure: mapDioError(e), status: null);
+    } catch (_) {
+      return (failure: const ServerFailure(), status: null);
+    }
+  }
+
+  @override
   Future<({Failure? failure, Squad? squad})> leaveSquad({
     required String squadId,
     required String userId,

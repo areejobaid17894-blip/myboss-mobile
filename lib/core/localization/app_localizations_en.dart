@@ -198,7 +198,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get surveyTargetReachedHint =>
-      'Extra surveys still count toward your rank.';
+      'Your squad finished the required surveys. New surveys are locked.';
 
   @override
   String get governorateInsights => 'Governorate insights';
@@ -389,7 +389,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createSquadNameDesc =>
-      'Make it memorable — it shows up on the leaderboard for the whole company. Letters and spaces only (max 100 characters).';
+      'Make it memorable — it shows up on the leaderboard for the whole company. Letters, numbers, and spaces are allowed (max 100 characters).';
 
   @override
   String get squadNameHint => 'e.g. Desert Falcons';
@@ -841,7 +841,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get surveyOfflineSavedBody =>
-      'No internet connection. Your survey was saved as a draft and will be submitted automatically when you are back online.';
+      'No internet connection. Your survey was saved under Offline surveys on Home and will submit automatically when you are back online.';
+
+  @override
+  String get offlineSurveysTitle => 'Offline surveys';
+
+  @override
+  String get offlineSurveysDesc =>
+      'Saved on this device. Tap to open, or they sync when you return online.';
+
+  @override
+  String get offlineSurveyPendingBadge => 'Offline — waiting to sync';
+
+  @override
+  String get surveyTargetReachedTitle => 'Survey target reached';
+
+  @override
+  String get surveyTargetReachedBody =>
+      'Your squad already completed the required number of surveys. You cannot fill new ones.';
+
+  @override
+  String get errorSurveyTargetReached =>
+      'Your squad has already completed the required surveys.';
+
+  @override
+  String get cancelJoinRequest => 'Cancel join request';
+
+  @override
+  String get cancelJoinRequestConfirmTitle => 'Cancel join request?';
+
+  @override
+  String get cancelJoinRequestConfirmMessage =>
+      'You can create a new squad or join another one after cancelling.';
+
+  @override
+  String get cancelJoinRequestConfirmYes => 'Cancel request';
 
   @override
   String get errorGeneric => 'Something went wrong. Please try again.';
@@ -931,7 +965,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorSquadNameInvalid =>
-      'Use letters and spaces only — no numbers, emojis, or special characters.';
+      'Use letters, numbers, and spaces. Hyphens and apostrophes are OK — no emojis or other symbols.';
 
   @override
   String get errorSquadAlreadyMember => 'You are already in a squad.';

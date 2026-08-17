@@ -3,13 +3,24 @@ import 'dev_api_host.dart';
 
 /// Single backend origin. Build/run scripts pass `--dart-define=API_HOST=host`.
 class DemoApiEndpoint {
-  const DemoApiEndpoint({required this.host});
+  const DemoApiEndpoint({
+    required this.host,
+    this.scheme = defaultScheme,
+    this.port = defaultPort,
+  });
 
   final String host;
-  static const int apiPort = int.fromEnvironment('API_PORT', defaultValue: 3001);
+  final String scheme;
+  final int port;
 
-  String get baseOrigin => 'http://$host';
-  String get apiBaseUrl => 'http://$host:$apiPort/api/v1';
+  static const int defaultPort = int.fromEnvironment('API_PORT', defaultValue: 3001);
+  static const String defaultScheme = String.fromEnvironment('API_SCHEME', defaultValue: 'http');
+
+  bool get _omitPort =>
+      (scheme == 'https' && (port == 443 || port == 0)) || (scheme == 'http' && port == 80);
+
+  String get baseOrigin => _omitPort ? '$scheme://$host' : '$scheme://$host:$port';
+  String get apiBaseUrl => '$baseOrigin/api/v1';
 
   String authBaseUrl() => apiBaseUrl;
   String userBaseUrl() => apiBaseUrl;
@@ -21,7 +32,6 @@ class DemoApiEndpoint {
 
   static DemoApiEndpoint fromHost(String raw) {
     final host = raw.trim();
-    // Strip scheme/port if someone passes a full URL by mistake
     final cleaned = host
         .replaceFirst(RegExp(r'^https?://'), '')
         .split(':')
@@ -65,8 +75,9 @@ class DemoApiEndpoint {
   static List<DemoApiEndpoint> _dedupe(List<DemoApiEndpoint> endpoints) {
     final seen = <String>{};
     return endpoints.where((endpoint) {
-      if (seen.contains(endpoint.host)) return false;
-      seen.add(endpoint.host);
+      final key = '${endpoint.scheme}|${endpoint.host}|${endpoint.port}';
+      if (seen.contains(key)) return false;
+      seen.add(key);
       return true;
     }).toList();
   }

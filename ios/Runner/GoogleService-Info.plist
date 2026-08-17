@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyBW_f-DTDlixrj_pBfUa4fuvr0XQpr3eoE</string>
+	<string>AIzaSyC8FINbRalZ4WVvt0gqFo2WiUk4ySUDYXE</string>
 	<key>GCM_SENDER_ID</key>
-	<string>142867649793</string>
+	<string>418987594217</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.myboss.mybossMobile</string>
 	<key>PROJECT_ID</key>
-	<string>my-boss-app-38576</string>
+	<string>my-customer-my-boss</string>
 	<key>STORAGE_BUCKET</key>
-	<string>my-boss-app-38576.firebasestorage.app</string>
+	<string>my-customer-my-boss.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:142867649793:ios:8acdec20b145cc497cf700</string>
+	<string>1:418987594217:ios:631189970a237264affb78</string>
 </dict>
 </plist>

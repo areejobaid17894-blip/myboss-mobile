@@ -26,6 +26,7 @@ class SquadHubLoaded extends SquadHubState {
     this.joinStatus,
     this.settings,
     this.isRespondingInvite = false,
+    this.isCancellingJoin = false,
     this.error,
   });
 
@@ -33,6 +34,7 @@ class SquadHubLoaded extends SquadHubState {
   final SquadJoinStatus? joinStatus;
   final EmployeeSettings? settings;
   final bool isRespondingInvite;
+  final bool isCancellingJoin;
   final Failure? error;
 
   bool get hasPendingJoinRequest => joinStatus?.hasPendingJoinRequest ?? false;
@@ -42,7 +44,7 @@ class SquadHubLoaded extends SquadHubState {
   bool get canCreateOrJoin => !hasPendingJoinRequest && !employeeJoinClosed;
 
   @override
-  List<Object?> get props => [stats, joinStatus, settings, isRespondingInvite, error];
+  List<Object?> get props => [stats, joinStatus, settings, isRespondingInvite, isCancellingJoin, error];
 }
 
 class SquadHubError extends SquadHubState {
@@ -57,12 +59,14 @@ class SquadHubCubit extends Cubit<SquadHubState> {
     this._getStatsUseCase,
     this._getJoinStatusUseCase,
     this._respondToInviteUseCase,
+    this._cancelMyJoinRequestUseCase,
     this._getEmployeeSettingsUseCase,
   ) : super(const SquadHubInitial());
 
   final GetSquadStatsUseCase _getStatsUseCase;
   final GetJoinStatusUseCase _getJoinStatusUseCase;
   final RespondToInviteUseCase _respondToInviteUseCase;
+  final CancelMyJoinRequestUseCase _cancelMyJoinRequestUseCase;
   final GetEmployeeSettingsUseCase _getEmployeeSettingsUseCase;
 
   Future<void> load({required String userId}) async {
@@ -128,6 +132,36 @@ class SquadHubCubit extends Cubit<SquadHubState> {
         joinStatus: const SquadJoinStatus(inSquad: false, hasPendingJoinRequest: false),
       ));
     }
+    return true;
+  }
+
+  Future<bool> cancelMyJoinRequest() async {
+    final current = state;
+    if (current is! SquadHubLoaded) return false;
+    if (!current.hasPendingJoinRequest || current.isPendingInvite) return false;
+
+    emit(SquadHubLoaded(
+      stats: current.stats,
+      joinStatus: current.joinStatus,
+      settings: current.settings,
+      isCancellingJoin: true,
+    ));
+    final response = await _cancelMyJoinRequestUseCase();
+    if (response.failure != null) {
+      emit(SquadHubLoaded(
+        stats: current.stats,
+        joinStatus: current.joinStatus,
+        settings: current.settings,
+        error: response.failure,
+      ));
+      return false;
+    }
+    emit(SquadHubLoaded(
+      stats: current.stats,
+      settings: current.settings,
+      joinStatus: response.status ??
+          const SquadJoinStatus(inSquad: false, hasPendingJoinRequest: false),
+    ));
     return true;
   }
 }

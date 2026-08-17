@@ -191,7 +191,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get surveyTargetReachedHint =>
-      'الاستبيانات الإضافية ما زالت تُحسب في ترتيبك.';
+      'أكمل فريقك الاستبيانات المطلوبة. الاستبيانات الجديدة مقفلة.';
 
   @override
   String get governorateInsights => 'رؤى المحافظة';
@@ -381,7 +381,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get createSquadNameDesc =>
-      'اختر اسماً مميزاً — يظهر في لوحة المتصدرين للشركة. أحرف ومسافات فقط (بحد أقصى 100 حرف).';
+      'اختر اسماً مميزاً — يظهر في لوحة المتصدرين للشركة. الأحرف والأرقام والمسافات مسموحة (بحد أقصى 100 حرف).';
 
   @override
   String get squadNameHint => 'مثال: صقور الصحراء';
@@ -827,7 +827,41 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get surveyOfflineSavedBody =>
-      'لا يوجد اتصال بالإنترنت. تم حفظ الاستبيان كمسودة وسيُرسل تلقائياً عند عودة الاتصال.';
+      'لا يوجد اتصال بالإنترنت. تم حفظ الاستبيان ضمن الاستبيانات دون اتصال في الرئيسية وسيُرسل تلقائياً عند عودة الاتصال.';
+
+  @override
+  String get offlineSurveysTitle => 'استبيانات دون اتصال';
+
+  @override
+  String get offlineSurveysDesc =>
+      'محفوظة على هذا الجهاز. اضغط لفتحها، أو تُزامَن عند عودة الاتصال.';
+
+  @override
+  String get offlineSurveyPendingBadge => 'دون اتصال — بانتظار المزامنة';
+
+  @override
+  String get surveyTargetReachedTitle => 'تم الوصول لهدف الاستبيانات';
+
+  @override
+  String get surveyTargetReachedBody =>
+      'أكمل فريقك العدد المطلوب من الاستبيانات. لا يمكنك تعبئة استبيانات جديدة.';
+
+  @override
+  String get errorSurveyTargetReached =>
+      'أكمل فريقك الاستبيانات المطلوبة بالفعل.';
+
+  @override
+  String get cancelJoinRequest => 'إلغاء طلب الانضمام';
+
+  @override
+  String get cancelJoinRequestConfirmTitle => 'إلغاء طلب الانضمام؟';
+
+  @override
+  String get cancelJoinRequestConfirmMessage =>
+      'يمكنك إنشاء فريق جديد أو الانضمام لفريق آخر بعد الإلغاء.';
+
+  @override
+  String get cancelJoinRequestConfirmYes => 'إلغاء الطلب';
 
   @override
   String get errorGeneric => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
@@ -915,7 +949,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorSquadNameInvalid =>
-      'استخدم الأحرف والمسافات فقط — بدون أرقام أو رموز أو إيموجي.';
+      'استخدم أحرفاً وأرقاماً ومسافات. الشرطة وعلامة الاقتباس مسموحتان — بدون إيموجي أو رموز أخرى.';
 
   @override
   String get errorSquadAlreadyMember => 'أنت بالفعل في فريق.';

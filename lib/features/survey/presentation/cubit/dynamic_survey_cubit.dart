@@ -120,12 +120,14 @@ class DynamicSurveyCubit extends Cubit<DynamicSurveyState> {
   DynamicSurveyCubit(
     this._getActiveSurveyUseCase,
     this._submitResponseUseCase,
+    this._getSquadProgressUseCase,
     this._draftStore,
     this._schemaCache,
   ) : super(const DynamicSurveyState());
 
   final GetActiveSurveyUseCase _getActiveSurveyUseCase;
   final SubmitSurveyResponseUseCase _submitResponseUseCase;
+  final GetSquadProgressUseCase _getSquadProgressUseCase;
   final SurveyDraftStore _draftStore;
   final SurveySchemaCache _schemaCache;
 
@@ -146,6 +148,15 @@ class DynamicSurveyCubit extends Cubit<DynamicSurveyState> {
     _governorate = governorate;
 
     emit(const DynamicSurveyState(isLoading: true));
+
+    final progressResponse = await _getSquadProgressUseCase(squadId);
+    final pendingForSegment = (await _draftStore.listPending()).any(
+      (item) => item.userId == userId && item.segment == segment,
+    );
+    if (progressResponse.progress?.isTargetReached == true && !pendingForSegment) {
+      emit(const DynamicSurveyState(error: ServerFailure(code: 'SURVEY_TARGET_REACHED')));
+      return;
+    }
 
     final cached = await _schemaCache.getBySegment(segment);
     if (cached != null && cached.questions.isNotEmpty) {
@@ -289,7 +300,8 @@ class DynamicSurveyCubit extends Cubit<DynamicSurveyState> {
     );
 
     if (response.failure != null) {
-      if (response.failure is NetworkFailure) {
+      if (response.failure is NetworkFailure ||
+          response.failure?.code == 'BACKEND_UNAVAILABLE') {
         await _saveOfflinePending();
         emit(state.copyWith(isSubmitting: false, savedOffline: true, clearSubmitError: true));
         return;

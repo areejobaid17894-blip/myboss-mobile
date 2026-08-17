@@ -9,6 +9,7 @@ import 'package:myboss_mobile/core/theme/app_colors.dart';
 import 'package:myboss_mobile/core/widgets/boss_buttons.dart';
 import 'package:myboss_mobile/core/widgets/boss_design_widgets.dart';
 import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
+import 'package:myboss_mobile/features/squad/domain/squad_name_validator.dart';
 import 'package:myboss_mobile/features/squad/presentation/cubit/create_squad_cubit.dart';
 import 'package:myboss_mobile/features/squad/presentation/squad_formation_navigation.dart';
 import 'package:myboss_mobile/features/squad/presentation/widgets/squad_join_policy_banner.dart';
@@ -76,8 +77,16 @@ class _CreateSquadViewState extends State<_CreateSquadView> {
           final isLoading = state is CreateSquadSubmitting;
           final errorFailure = state is CreateSquadError ? state.failure : null;
           final error = errorFailure != null ? localizedFailureMessage(l10n, errorFailure) : null;
+          final nameErrorCode = SquadNameValidator.validate(_nameController.text);
+          final nameError = switch (nameErrorCode) {
+            'SQUAD_NAME_EMPTY' => null,
+            'SQUAD_NAME_TOO_SHORT' => l10n.errorSquadNameTooShort,
+            'SQUAD_NAME_TOO_LONG' => l10n.errorSquadNameTooLong,
+            'SQUAD_NAME_INVALID' => l10n.errorSquadNameInvalid,
+            _ => null,
+          };
           final canSubmit = user != null &&
-              _nameController.text.trim().isNotEmpty &&
+              nameErrorCode == null &&
               !(_settings?.isEmployeeJoinClosed() ?? false);
 
           return Column(
@@ -110,6 +119,10 @@ class _CreateSquadViewState extends State<_CreateSquadView> {
                           onChanged: (_) => setState(() {}),
                         ),
                       ),
+                      if (nameError != null) ...[
+                        const SizedBox(height: 8),
+                        Text(nameError, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+                      ],
                       const SizedBox(height: 10),
                       BossField(
                         leading: const Text('#', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),

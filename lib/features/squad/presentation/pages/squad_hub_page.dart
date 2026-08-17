@@ -107,6 +107,20 @@ class _SquadHubView extends StatelessWidget {
                                         ? null
                                         : () => context.read<SquadHubCubit>().respondToInvite(accept: false),
                                   ),
+                                ] else ...[
+                                  const SizedBox(height: 12),
+                                  if (state.error != null) ...[
+                                    AppErrorView(failure: state.error!),
+                                    const SizedBox(height: 8),
+                                  ],
+                                  BossPrimaryButton(
+                                    label: l10n.cancelJoinRequest,
+                                    variant: BossButtonVariant.outline,
+                                    isLoading: state.isCancellingJoin,
+                                    onPressed: state.isCancellingJoin
+                                        ? null
+                                        : () => context.read<SquadHubCubit>().cancelMyJoinRequest(),
+                                  ),
                                 ],
                               ],
                             ),

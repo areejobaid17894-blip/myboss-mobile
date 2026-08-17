@@ -42,6 +42,7 @@ String localizedFailureMessage(AppLocalizations l10n, Failure failure) {
     'SQUAD_MEMBER_NOT_FOUND' => l10n.errorSquadMemberNotFound,
     'SURVEY_NOT_FOUND' => l10n.errorSurveyNotFound,
     'SURVEY_SEGMENT_NOT_FOUND' => l10n.errorSurveySegmentNotFound,
+    'SURVEY_TARGET_REACHED' => l10n.errorSurveyTargetReached,
     'GALLERY_UPLOAD_LIMIT' => l10n.errorGalleryUploadLimit,
     'BACKEND_UNAVAILABLE' => l10n.errorBackendUnavailable,
     'INTERNAL_ERROR' => l10n.errorGeneric,

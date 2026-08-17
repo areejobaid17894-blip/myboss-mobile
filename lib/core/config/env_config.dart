@@ -60,7 +60,11 @@ class EnvConfig {
 
   static EnvConfig _singleApi(String host, AppEnvironment env) {
     const port = int.fromEnvironment('API_PORT', defaultValue: 3001);
-    final base = 'http://$host:$port/api/v1';
+    const scheme = String.fromEnvironment('API_SCHEME', defaultValue: 'http');
+    final omitPort =
+        (scheme == 'https' && (port == 443 || port == 0)) || (scheme == 'http' && port == 80);
+    final origin = omitPort ? '$scheme://$host' : '$scheme://$host:$port';
+    final base = '$origin/api/v1';
     return EnvConfig._(
       environment: env,
       authBaseUrl: base,

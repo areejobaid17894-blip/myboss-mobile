@@ -193,6 +193,7 @@ class _MySquadView extends StatelessWidget {
             joinClosed: state.employeeJoinClosed,
             settings: state.settings,
             onRefresh: () => context.read<MySquadCubit>().load(userId),
+            onCancelJoinRequest: () => context.read<MySquadCubit>().cancelMyJoinRequest(),
             onAcceptInvite: state.employeeJoinClosed
                 ? null
                 : () => context.read<MySquadCubit>().respondToInvite(accept: true),
@@ -715,6 +716,7 @@ class _NoSquadView extends StatelessWidget {
     this.settings,
     this.onAcceptInvite,
     this.onRejectInvite,
+    this.onCancelJoinRequest,
   });
 
   final AppLocalizations l10n;
@@ -727,6 +729,7 @@ class _NoSquadView extends StatelessWidget {
   final EmployeeSettings? settings;
   final VoidCallback? onAcceptInvite;
   final VoidCallback? onRejectInvite;
+  final VoidCallback? onCancelJoinRequest;
 
   @override
   Widget build(BuildContext context) {
@@ -787,13 +790,20 @@ class _NoSquadView extends StatelessWidget {
               style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(54)),
               child: Text(l10n.rejectInvite),
             ),
-          ] else if (hasPendingJoinRequest)
+          ] else if (hasPendingJoinRequest) ...[
+            BossPrimaryButton(
+              label: l10n.cancelJoinRequest,
+              variant: BossButtonVariant.outline,
+              isLoading: isResponding,
+              onPressed: isResponding ? null : onCancelJoinRequest,
+            ),
+            const SizedBox(height: 12),
             OutlinedButton(
               onPressed: onRefresh,
               style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(54)),
               child: Text(l10n.refresh),
-            )
-          else if (!joinClosed) ...[
+            ),
+          ] else if (!joinClosed) ...[
             BossPrimaryButton(
               label: l10n.createSquad,
               onPressed: () => context.push('/squad/create'),

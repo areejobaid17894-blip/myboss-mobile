@@ -1,4 +1,4 @@
-// Generated from Firebase project my-boss-app-38576 (Android + iOS).
+// Generated from Firebase project my-customer-my-boss (Android + iOS).
 //
 // Build with push: --dart-define=PUSH_ENABLED=true
 
@@ -21,20 +21,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDhfJyAkpkunSvuGI-4awk96JkU36jfGho',
-    appId: '1:142867649793:android:3246efde837d83907cf700',
-    messagingSenderId: '142867649793',
-    projectId: 'my-boss-app-38576',
-    storageBucket: 'my-boss-app-38576.firebasestorage.app',
+    apiKey: 'AIzaSyBrxc2Ngddxnsy0WrHLExWr8pDo0O5MvdM',
+    appId: '1:418987594217:android:df43fb4766902c33affb78',
+    messagingSenderId: '418987594217',
+    projectId: 'my-customer-my-boss',
+    storageBucket: 'my-customer-my-boss.firebasestorage.app',
   );
 
   // iOS — synced from ios/Runner/GoogleService-Info.plist
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBW_f-DTDlixrj_pBfUa4fuvr0XQpr3eoE',
-    appId: '1:142867649793:ios:8acdec20b145cc497cf700',
-    messagingSenderId: '142867649793',
-    projectId: 'my-boss-app-38576',
-    storageBucket: 'my-boss-app-38576.firebasestorage.app',
+    apiKey: 'AIzaSyC8FINbRalZ4WVvt0gqFo2WiUk4ySUDYXE',
+    appId: '1:418987594217:ios:631189970a237264affb78',
+    messagingSenderId: '418987594217',
+    projectId: 'my-customer-my-boss',
+    storageBucket: 'my-customer-my-boss.firebasestorage.app',
     iosBundleId: 'com.myboss.mybossMobile',
   );
 }

@@ -35,8 +35,8 @@ class SquadRemoteDataSourceImpl implements SquadRemoteDataSource {
     final response = await _client.squad.post('/squads', data: {
       'name': name,
       'badge': badge,
-      'governorate': governorate,
-      if (building != null) 'building': building,
+      if (governorate.trim().isNotEmpty) 'governorate': governorate.trim(),
+      if (building != null && building.trim().isNotEmpty) 'building': building.trim(),
     });
     return response.data as Map<String, dynamic>;
   }
@@ -124,6 +124,12 @@ class SquadRemoteDataSourceImpl implements SquadRemoteDataSource {
     required String requestId,
   }) async {
     final response = await _client.squad.delete('/squads/$squadId/invites/$requestId');
+    return response.data as Map<String, dynamic>;
+  }
+
+  @override
+  Future<Map<String, dynamic>> cancelMyJoinRequest() async {
+    final response = await _client.squad.delete('/squads/join-requests/mine');
     return response.data as Map<String, dynamic>;
   }
 

@@ -160,6 +160,7 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => ListSuggestedMembersUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => InviteMemberUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => CancelInviteUseCase(getIt<SquadRepository>()));
+  getIt.registerLazySingleton(() => CancelMyJoinRequestUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => RespondToInviteUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => LeaveSquadUseCase(getIt<SquadRepository>()));
   getIt.registerLazySingleton(() => TransferLeadershipUseCase(getIt<SquadRepository>()));
@@ -177,6 +178,7 @@ Future<void> configureDependencies() async {
         getIt<GetSquadStatsUseCase>(),
         getIt<GetJoinStatusUseCase>(),
         getIt<RespondToInviteUseCase>(),
+        getIt<CancelMyJoinRequestUseCase>(),
         getIt<GetEmployeeSettingsUseCase>(),
       ));
   getIt.registerFactory(() => CreateSquadCubit(getIt<CreateSquadUseCase>()));
@@ -194,6 +196,7 @@ Future<void> configureDependencies() async {
         getIt<InviteMemberUseCase>(),
         getIt<CancelInviteUseCase>(),
         getIt<RespondToInviteUseCase>(),
+        getIt<CancelMyJoinRequestUseCase>(),
         getIt<LeaveSquadUseCase>(),
         getIt<TransferLeadershipUseCase>(),
         getIt<RemoveSquadMemberUseCase>(),
@@ -221,6 +224,7 @@ Future<void> configureDependencies() async {
     () => DynamicSurveyCubit(
       getIt<GetActiveSurveyUseCase>(),
       getIt<SubmitSurveyResponseUseCase>(),
+      getIt<GetSquadProgressUseCase>(),
       getIt<SurveyDraftStore>(),
       getIt<SurveySchemaCache>(),
     ),
@@ -264,6 +268,7 @@ Future<void> configureDependencies() async {
       getIt<GetNotificationsForUserUseCase>(),
       getIt<NotificationUnreadTracker>(),
       getIt<SurveySchemaCache>(),
+      getIt<SurveyDraftStore>(),
     ),
   );
 

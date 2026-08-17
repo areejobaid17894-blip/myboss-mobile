@@ -10,6 +10,7 @@ import 'package:myboss_mobile/features/gallery/domain/usecases/gallery_usecases.
 import 'package:myboss_mobile/features/squad/domain/entities/squad.dart';
 import 'package:myboss_mobile/features/squad/domain/usecases/resolve_user_squad_usecase.dart';
 import 'package:myboss_mobile/features/squad/domain/usecases/squad_usecases.dart';
+import 'package:myboss_mobile/features/survey/data/survey_draft_store.dart';
 import 'package:myboss_mobile/features/survey/data/survey_offline_sync.dart';
 import 'package:myboss_mobile/features/survey/data/survey_schema_cache.dart';
 import 'package:myboss_mobile/features/survey/domain/entities/survey.dart';
@@ -23,6 +24,7 @@ class HomeState extends Equatable {
     this.progress,
     this.report,
     this.surveys = const [],
+    this.pendingOffline = const [],
     this.unreadNotifications = 0,
     this.confirmedNoSquad = false,
     this.squadLoadFailed = false,
@@ -35,6 +37,7 @@ class HomeState extends Equatable {
   final SquadProgress? progress;
   final SurveyReport? report;
   final List<DynamicSurvey> surveys;
+  final List<SurveyPendingSubmission> pendingOffline;
   final int unreadNotifications;
   final bool confirmedNoSquad;
   final bool squadLoadFailed;
@@ -43,6 +46,10 @@ class HomeState extends Equatable {
   bool get hasActiveSquad => squad != null;
   bool get hasPendingJoinRequest => joinStatus?.hasPendingJoinRequest ?? false;
   bool get showNoSquadExperience => confirmedNoSquad && !hasActiveSquad;
+  bool get surveyTargetReached => progress?.isTargetReached ?? false;
+
+  bool hasPendingOfflineForSegment(String segment) =>
+      pendingOffline.any((item) => item.segment == segment);
 
   HomeState copyWith({
     bool? isLoading,
@@ -52,6 +59,7 @@ class HomeState extends Equatable {
     SquadProgress? progress,
     SurveyReport? report,
     List<DynamicSurvey>? surveys,
+    List<SurveyPendingSubmission>? pendingOffline,
     int? unreadNotifications,
     bool? confirmedNoSquad,
     bool? squadLoadFailed,
@@ -66,6 +74,7 @@ class HomeState extends Equatable {
       progress: progress ?? this.progress,
       report: report ?? this.report,
       surveys: surveys ?? this.surveys,
+      pendingOffline: pendingOffline ?? this.pendingOffline,
       unreadNotifications: unreadNotifications ?? this.unreadNotifications,
       confirmedNoSquad: confirmedNoSquad ?? this.confirmedNoSquad,
       squadLoadFailed: squadLoadFailed ?? this.squadLoadFailed,
@@ -74,7 +83,19 @@ class HomeState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [isLoading, squad, joinStatus, progress, report, surveys, unreadNotifications, confirmedNoSquad, squadLoadFailed, error];
+  List<Object?> get props => [
+        isLoading,
+        squad,
+        joinStatus,
+        progress,
+        report,
+        surveys,
+        pendingOffline,
+        unreadNotifications,
+        confirmedNoSquad,
+        squadLoadFailed,
+        error,
+      ];
 }
 
 class HomeCubit extends Cubit<HomeState> {
@@ -87,6 +108,7 @@ class HomeCubit extends Cubit<HomeState> {
     this._getNotificationsForUserUseCase,
     this._unreadTracker,
     this._schemaCache,
+    this._draftStore,
   ) : super(const HomeState());
 
   final ResolveUserSquadUseCase _resolveUserSquadUseCase;
@@ -97,6 +119,7 @@ class HomeCubit extends Cubit<HomeState> {
   final GetNotificationsForUserUseCase _getNotificationsForUserUseCase;
   final NotificationUnreadTracker _unreadTracker;
   final SurveySchemaCache _schemaCache;
+  final SurveyDraftStore _draftStore;
 
   static const _fallbackSurveys = [
     DynamicSurvey(
@@ -129,20 +152,29 @@ class HomeCubit extends Cubit<HomeState> {
     final session = getIt<SessionManager>();
     final cachedSurveys = await _schemaCache.listAll();
     final cachedSquad = session.currentSquad;
+    final cachedPending = userId.isEmpty
+        ? const <SurveyPendingSubmission>[]
+        : (await _draftStore.listPending()).where((item) => item.userId == userId).toList();
     final hasOfflineStart = cachedSquad != null && cachedSurveys.any((survey) => survey.questions.isNotEmpty);
 
     emit(state.copyWith(
       isLoading: !hasOfflineStart,
       squad: cachedSquad,
       surveys: cachedSurveys.isNotEmpty ? cachedSurveys : state.surveys,
+      pendingOffline: cachedPending,
       confirmedNoSquad: cachedSquad == null && session.confirmedNoSquad,
       squadLoadFailed: false,
       clearError: true,
     ));
 
     if (userId.isNotEmpty) {
-      unawaited(getIt<SurveyOfflineSync>().flushPending(userId: userId));
+      // Await flush so home progress reflects synced offline surveys.
+      await getIt<SurveyOfflineSync>().flushPending(userId: userId);
     }
+
+    final pendingOffline = userId.isEmpty
+        ? const <SurveyPendingSubmission>[]
+        : (await _draftStore.listPending()).where((item) => item.userId == userId).toList();
 
     final surveysResponse = await _listSurveysUseCase();
     final surveys = surveysResponse.surveys.isNotEmpty
@@ -150,7 +182,13 @@ class HomeCubit extends Cubit<HomeState> {
         : (cachedSurveys.isNotEmpty ? cachedSurveys : _fallbackSurveys);
 
     if (userId.isEmpty) {
-      emit(state.copyWith(isLoading: false, surveys: surveys, clearSquad: true, clearJoinStatus: true));
+      emit(state.copyWith(
+        isLoading: false,
+        surveys: surveys,
+        pendingOffline: const [],
+        clearSquad: true,
+        clearJoinStatus: true,
+      ));
       return;
     }
 
@@ -179,6 +217,7 @@ class HomeCubit extends Cubit<HomeState> {
       emit(state.copyWith(
         isLoading: false,
         surveys: surveys,
+        pendingOffline: pendingOffline,
         clearSquad: true,
         joinStatus: statusResponse.status,
         unreadNotifications: unreadCount,
@@ -193,6 +232,7 @@ class HomeCubit extends Cubit<HomeState> {
       emit(state.copyWith(
         isLoading: false,
         surveys: surveys,
+        pendingOffline: pendingOffline,
         error: squadResponse.failure,
         unreadNotifications: unreadCount,
         squadLoadFailed: squadResponse.failure != null,
@@ -214,6 +254,7 @@ class HomeCubit extends Cubit<HomeState> {
       progress: progressResponse.progress,
       report: reportResponse.report,
       surveys: surveys,
+      pendingOffline: pendingOffline,
       unreadNotifications: unreadCount,
       confirmedNoSquad: false,
       squadLoadFailed: false,

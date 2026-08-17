@@ -10,6 +10,7 @@ import 'package:myboss_mobile/core/theme/app_colors.dart';
 import 'package:myboss_mobile/core/widgets/boss_design_widgets.dart';
 import 'package:myboss_mobile/features/home/presentation/cubit/home_cubit.dart';
 import 'package:myboss_mobile/features/squad/presentation/widgets/squad_required_panel.dart';
+import 'package:myboss_mobile/features/survey/data/survey_draft_store.dart';
 import 'package:myboss_mobile/features/survey/domain/entities/survey.dart';
 
 class HomePage extends StatelessWidget {
@@ -30,10 +31,17 @@ class HomePage extends StatelessWidget {
 class _HomeView extends StatelessWidget {
   const _HomeView();
 
+  Future<void> _openSurvey(BuildContext context, String segment, String userId) async {
+    await context.push('/survey/$segment');
+    if (!context.mounted) return;
+    await context.read<HomeCubit>().load(userId);
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = getIt<SessionManager>();
     final user = session.currentUser;
+    final userId = user?.id ?? '';
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
@@ -43,9 +51,10 @@ class _HomeView extends StatelessWidget {
       ),
       body: RefreshIndicator(
         color: AppColors.orange,
-        onRefresh: () async => context.read<HomeCubit>().load(user?.id ?? ''),
+        onRefresh: () async => context.read<HomeCubit>().load(userId),
         child: BlocBuilder<HomeCubit, HomeState>(
           builder: (context, state) {
+            final surveysLocked = state.surveyTargetReached;
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
@@ -83,7 +92,7 @@ class _HomeView extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 20),
                       child: AppErrorView(
                         failure: state.error!,
-                        onRetry: () => context.read<HomeCubit>().load(user?.id ?? ''),
+                        onRetry: () => context.read<HomeCubit>().load(userId),
                       ),
                     ),
                   if (state.showNoSquadExperience) ...[
@@ -93,43 +102,64 @@ class _HomeView extends StatelessWidget {
                         hasPendingJoinRequest: true,
                         isPendingInvite: state.joinStatus?.isPendingInvite ?? false,
                         pendingSquadName: state.joinStatus?.squadName,
-                        onRefresh: () => context.read<HomeCubit>().load(user?.id ?? ''),
+                        onRefresh: () => context.read<HomeCubit>().load(userId),
+                        onCancelJoinRequest: () => context.read<HomeCubit>().load(userId),
                         showFeatureList: false,
                       )
                     else
                       SquadRequiredPanel(l10n: l10n),
                     const SizedBox(height: 20),
+                    if (state.pendingOffline.isNotEmpty) ...[
+                      _OfflineSurveysSection(
+                        items: state.pendingOffline,
+                        surveys: state.surveys,
+                        l10n: l10n,
+                        onOpen: (segment) => _openSurvey(context, segment, userId),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                     _LockedServicesSection(surveys: state.surveys, l10n: l10n),
                   ] else if (state.hasActiveSquad) ...[
                     if (state.surveys.isNotEmpty)
                       BossCard(
                         backgroundColor: AppColors.ink,
                         borderColor: AppColors.ink,
-                        onTap: () => context.push('/survey/${state.surveys.first.segment}'),
+                        onTap: surveysLocked
+                            ? null
+                            : () => _openSurvey(context, state.surveys.first.segment, userId),
                         padding: const EdgeInsets.all(18),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(l10n.addCustomer, style: AppTextStyles.h2.copyWith(color: AppColors.orange)),
-                                  const SizedBox(height: 4),
-                                  Text(l10n.addCustomerDesc, style: AppTextStyles.small.copyWith(color: const Color(0xFFBBBBBB))),
-                                ],
+                        child: Opacity(
+                          opacity: surveysLocked ? 0.55 : 1,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      surveysLocked ? l10n.surveyTargetReachedTitle : l10n.addCustomer,
+                                      style: AppTextStyles.h2.copyWith(color: AppColors.orange),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      surveysLocked ? l10n.surveyTargetReachedBody : l10n.addCustomerDesc,
+                                      style: AppTextStyles.small.copyWith(color: const Color(0xFFBBBBBB)),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Container(
-                              width: 46,
-                              height: 46,
-                              decoration: BoxDecoration(
-                                color: AppColors.orange,
-                                borderRadius: BorderRadius.circular(14),
+                              Container(
+                                width: 46,
+                                height: 46,
+                                decoration: BoxDecoration(
+                                  color: AppColors.orange,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(surveysLocked ? '✅' : '📋', style: const TextStyle(fontSize: 22)),
                               ),
-                              alignment: Alignment.center,
-                              child: const Text('📋', style: TextStyle(fontSize: 22)),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     const SizedBox(height: 20),
@@ -141,6 +171,15 @@ class _HomeView extends StatelessWidget {
                       targetReachedHint: l10n.surveyTargetReachedHint,
                     ),
                     const SizedBox(height: 20),
+                    if (state.pendingOffline.isNotEmpty) ...[
+                      _OfflineSurveysSection(
+                        items: state.pendingOffline,
+                        surveys: state.surveys,
+                        l10n: l10n,
+                        onOpen: (segment) => _openSurvey(context, segment, userId),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                     if (state.report != null)
                       _RankingsCard(
                         report: state.report!,
@@ -151,7 +190,15 @@ class _HomeView extends StatelessWidget {
                       ),
                     const SizedBox(height: 20),
                     if (state.surveys.isNotEmpty)
-                      _ServiceTemplatesSection(surveys: state.surveys, l10n: l10n, locked: false),
+                      _ServiceTemplatesSection(
+                        surveys: state.surveys,
+                        l10n: l10n,
+                        locked: surveysLocked,
+                        pendingSegments: {
+                          for (final item in state.pendingOffline) item.segment,
+                        },
+                        onOpen: (segment) => _openSurvey(context, segment, userId),
+                      ),
                   ],
                 ],
               ],
@@ -164,11 +211,19 @@ class _HomeView extends StatelessWidget {
 }
 
 class _ServiceTemplatesSection extends StatefulWidget {
-  const _ServiceTemplatesSection({required this.surveys, required this.l10n, this.locked = false});
+  const _ServiceTemplatesSection({
+    required this.surveys,
+    required this.l10n,
+    this.locked = false,
+    this.pendingSegments = const {},
+    this.onOpen,
+  });
 
   final List<DynamicSurvey> surveys;
   final AppLocalizations l10n;
   final bool locked;
+  final Set<String> pendingSegments;
+  final Future<void> Function(String segment)? onOpen;
 
   @override
   State<_ServiceTemplatesSection> createState() => _ServiceTemplatesSectionState();
@@ -215,6 +270,8 @@ class _ServiceTemplatesSectionState extends State<_ServiceTemplatesSection> {
               survey: survey,
               segmentLabel: _segmentLabel(survey.segment),
               locked: widget.locked,
+              pendingOffline: widget.pendingSegments.contains(survey.segment),
+              onOpen: widget.onOpen == null ? null : () => widget.onOpen!(survey.segment),
             ),
           ),
         ),
@@ -233,16 +290,99 @@ class _ServiceTemplatesSectionState extends State<_ServiceTemplatesSection> {
   }
 }
 
+class _OfflineSurveysSection extends StatelessWidget {
+  const _OfflineSurveysSection({
+    required this.items,
+    required this.surveys,
+    required this.l10n,
+    required this.onOpen,
+  });
+
+  final List<SurveyPendingSubmission> items;
+  final List<DynamicSurvey> surveys;
+  final AppLocalizations l10n;
+  final Future<void> Function(String segment) onOpen;
+
+  String _titleFor(String segment) {
+    return switch (segment) {
+      'business' => l10n.surveyTemplateBusinessTitle,
+      'employee' => l10n.surveyTemplateEmployeeTitle,
+      _ => l10n.surveyTemplateConsumerTitle,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.offlineSurveysTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.black),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          l10n.offlineSurveysDesc,
+          style: const TextStyle(color: AppColors.grey600, fontSize: 14, height: 1.4),
+        ),
+        const SizedBox(height: 12),
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => onOpen(item.segment),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.orangeLight,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.orange.withValues(alpha: 0.25)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.cloud_off_rounded, color: AppColors.orange),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_titleFor(item.segment), style: const TextStyle(fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 4),
+                          Text(
+                            l10n.offlineSurveyPendingBadge,
+                            style: const TextStyle(color: AppColors.orangeDark, fontSize: 12, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const BossChevronIcon(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _SurveyTemplateTile extends StatelessWidget {
   const _SurveyTemplateTile({
     required this.survey,
     required this.segmentLabel,
     this.locked = false,
+    this.pendingOffline = false,
+    this.onOpen,
   });
 
   final DynamicSurvey survey;
   final String segmentLabel;
   final bool locked;
+  final bool pendingOffline;
+  final VoidCallback? onOpen;
 
   IconData _iconForSegment(String segment) {
     switch (segment) {
@@ -277,9 +417,10 @@ class _SurveyTemplateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: locked ? null : () => context.push('/survey/${survey.segment}'),
+      onTap: locked ? null : (onOpen ?? () => context.push('/survey/${survey.segment}')),
       child: Opacity(
         opacity: locked ? 0.55 : 1,
         child: Container(
@@ -288,7 +429,7 @@ class _SurveyTemplateTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: pendingOffline ? AppColors.orange : AppColors.grey200),
             boxShadow: const [BoxShadow(color: Color(0x0F1A1A1A), blurRadius: 8, offset: Offset(0, 2))],
           ),
           child: Row(
@@ -299,7 +440,11 @@ class _SurveyTemplateTile extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(color: AppColors.orangeLight, borderRadius: BorderRadius.circular(12)),
                 child: Icon(
-                  locked ? Icons.lock_outline_rounded : _iconForSegment(survey.segment),
+                  locked
+                      ? Icons.lock_outline_rounded
+                      : pendingOffline
+                          ? Icons.cloud_off_rounded
+                          : _iconForSegment(survey.segment),
                   color: AppColors.orange,
                 ),
               ),
@@ -311,7 +456,13 @@ class _SurveyTemplateTile extends StatelessWidget {
                     Text(_localizedTitle(context), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                     const SizedBox(height: 4),
                     Text(segmentLabel, style: const TextStyle(color: AppColors.orangeDark, fontSize: 12, fontWeight: FontWeight.w600)),
-                    if (_localizedDescription(context).isNotEmpty) ...[
+                    if (pendingOffline) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        l10n.offlineSurveyPendingBadge,
+                        style: const TextStyle(color: AppColors.orangeDark, fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ] else if (_localizedDescription(context).isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Text(
                         _localizedDescription(context),

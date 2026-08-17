@@ -6,6 +6,7 @@ import 'package:myboss_mobile/core/theme/app_colors.dart';
 import 'package:myboss_mobile/core/widgets/boss_buttons.dart';
 import 'package:myboss_mobile/features/config/domain/entities/employee_settings.dart';
 import 'package:myboss_mobile/features/config/domain/usecases/get_employee_settings_usecase.dart';
+import 'package:myboss_mobile/features/squad/domain/usecases/squad_usecases.dart';
 import 'package:myboss_mobile/features/squad/presentation/widgets/squad_join_policy_banner.dart';
 
 /// Clear call-to-action when a feature needs an active squad.
@@ -20,6 +21,7 @@ class SquadRequiredPanel extends StatefulWidget {
     this.isPendingInvite = false,
     this.pendingSquadName,
     this.onRefresh,
+    this.onCancelJoinRequest,
   });
 
   final AppLocalizations l10n;
@@ -30,6 +32,7 @@ class SquadRequiredPanel extends StatefulWidget {
   final bool isPendingInvite;
   final String? pendingSquadName;
   final VoidCallback? onRefresh;
+  final VoidCallback? onCancelJoinRequest;
 
   @override
   State<SquadRequiredPanel> createState() => _SquadRequiredPanelState();
@@ -37,6 +40,7 @@ class SquadRequiredPanel extends StatefulWidget {
 
 class _SquadRequiredPanelState extends State<SquadRequiredPanel> {
   EmployeeSettings? _settings;
+  bool _cancelling = false;
 
   @override
   void initState() {
@@ -48,6 +52,16 @@ class _SquadRequiredPanelState extends State<SquadRequiredPanel> {
     final response = await getIt<GetEmployeeSettingsUseCase>()();
     if (!mounted) return;
     setState(() => _settings = response.settings);
+  }
+
+  Future<void> _cancelJoin() async {
+    setState(() => _cancelling = true);
+    final response = await getIt<CancelMyJoinRequestUseCase>()();
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    if (response.failure != null) return;
+    widget.onCancelJoinRequest?.call();
+    widget.onRefresh?.call();
   }
 
   @override
@@ -110,10 +124,22 @@ class _SquadRequiredPanelState extends State<SquadRequiredPanel> {
               onPressed: () => context.push('/my-squad'),
             )
           else if (widget.hasPendingJoinRequest)
-            OutlinedButton(
-              onPressed: widget.onRefresh,
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              child: Text(l10n.refresh),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                BossPrimaryButton(
+                  label: l10n.cancelJoinRequest,
+                  variant: BossButtonVariant.outline,
+                  isLoading: _cancelling,
+                  onPressed: _cancelling ? null : _cancelJoin,
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  onPressed: widget.onRefresh,
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  child: Text(l10n.refresh),
+                ),
+              ],
             )
           else if (!closed)
             Column(

@@ -58,6 +58,8 @@ abstract class SquadRepository {
     required String requestId,
   });
 
+  Future<({Failure? failure, SquadJoinStatus? status})> cancelMyJoinRequest();
+
   Future<({Failure? failure, Squad? squad})> leaveSquad({
     required String squadId,
     required String userId,

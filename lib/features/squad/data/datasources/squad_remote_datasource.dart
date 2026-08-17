@@ -52,6 +52,8 @@ abstract class SquadRemoteDataSource {
     required String requestId,
   });
 
+  Future<Map<String, dynamic>> cancelMyJoinRequest();
+
   Future<Map<String, dynamic>> leaveSquad({
     required String squadId,
     required String userId,

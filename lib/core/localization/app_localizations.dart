@@ -419,7 +419,7 @@ abstract class AppLocalizations {
   /// No description provided for @surveyTargetReachedHint.
   ///
   /// In en, this message translates to:
-  /// **'Extra surveys still count toward your rank.'**
+  /// **'Your squad finished the required surveys. New surveys are locked.'**
   String get surveyTargetReachedHint;
 
   /// No description provided for @governorateInsights.
@@ -767,7 +767,7 @@ abstract class AppLocalizations {
   /// No description provided for @createSquadNameDesc.
   ///
   /// In en, this message translates to:
-  /// **'Make it memorable — it shows up on the leaderboard for the whole company. Letters and spaces only (max 100 characters).'**
+  /// **'Make it memorable — it shows up on the leaderboard for the whole company. Letters, numbers, and spaces are allowed (max 100 characters).'**
   String get createSquadNameDesc;
 
   /// No description provided for @squadNameHint.
@@ -1517,8 +1517,68 @@ abstract class AppLocalizations {
   /// No description provided for @surveyOfflineSavedBody.
   ///
   /// In en, this message translates to:
-  /// **'No internet connection. Your survey was saved as a draft and will be submitted automatically when you are back online.'**
+  /// **'No internet connection. Your survey was saved under Offline surveys on Home and will submit automatically when you are back online.'**
   String get surveyOfflineSavedBody;
+
+  /// No description provided for @offlineSurveysTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline surveys'**
+  String get offlineSurveysTitle;
+
+  /// No description provided for @offlineSurveysDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device. Tap to open, or they sync when you return online.'**
+  String get offlineSurveysDesc;
+
+  /// No description provided for @offlineSurveyPendingBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — waiting to sync'**
+  String get offlineSurveyPendingBadge;
+
+  /// No description provided for @surveyTargetReachedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Survey target reached'**
+  String get surveyTargetReachedTitle;
+
+  /// No description provided for @surveyTargetReachedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your squad already completed the required number of surveys. You cannot fill new ones.'**
+  String get surveyTargetReachedBody;
+
+  /// No description provided for @errorSurveyTargetReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your squad has already completed the required surveys.'**
+  String get errorSurveyTargetReached;
+
+  /// No description provided for @cancelJoinRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel join request'**
+  String get cancelJoinRequest;
+
+  /// No description provided for @cancelJoinRequestConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel join request?'**
+  String get cancelJoinRequestConfirmTitle;
+
+  /// No description provided for @cancelJoinRequestConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can create a new squad or join another one after cancelling.'**
+  String get cancelJoinRequestConfirmMessage;
+
+  /// No description provided for @cancelJoinRequestConfirmYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel request'**
+  String get cancelJoinRequestConfirmYes;
 
   /// No description provided for @errorGeneric.
   ///
@@ -1673,7 +1733,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorSquadNameInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Use letters and spaces only — no numbers, emojis, or special characters.'**
+  /// **'Use letters, numbers, and spaces. Hyphens and apostrophes are OK — no emojis or other symbols.'**
   String get errorSquadNameInvalid;
 
   /// No description provided for @errorSquadAlreadyMember.
